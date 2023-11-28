@@ -28,7 +28,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := database.Init(dbConf)
+	db, err := database.Init(dbConf, log.New(logd.DefaultWriter, "", logd.DefaultLogFlags))
 	if err != nil {
 		slog.Error("database: ", err)
 		os.Exit(1)
@@ -43,7 +43,12 @@ func main() {
 	handler.SetDB(db)
 
 	slog.Info("Start application")
-	if err := route.Init().Start(config.ListenerAddr()); err != nil {
+	e := route.Init(route.RouteConfig{
+		LogWriter: logd.DefaultWriter,
+		DebugMode: config.Debug(),
+		JwtSecret: config.JwtSecret(),
+	})
+	if err := e.Start(config.ListenerAddr()); err != nil {
 		slog.Error("echo start:", err)
 		os.Exit(1)
 	}

@@ -3,8 +3,6 @@ package config
 import (
 	"os"
 	"strconv"
-
-	"gorm.io/gorm/logger"
 )
 
 func ListenerAddr() string {
@@ -21,7 +19,6 @@ type DbConf struct {
 	Password string
 	DbName   string
 	Port     uint64
-	DbLogger logger.Writer
 }
 
 func GetDb() (*DbConf, error) {
@@ -36,7 +33,6 @@ func GetDb() (*DbConf, error) {
 		Password: os.Getenv("MYSQL_PASSWORD"),
 		DbName:   os.Getenv("MYSQL_DATABASE"),
 		Port:     port,
-		DbLogger: nil,
 	}
 	return &conf, nil
 }

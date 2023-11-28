@@ -1,28 +1,33 @@
 package route
 
 import (
+	"io"
+
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-
-	"github.com/alirezaarzehgar/ticketservice/config"
-	"github.com/alirezaarzehgar/ticketservice/logd"
 )
 
 func todo(c echo.Context) error { return nil }
 
-func Init() *echo.Echo {
+type RouteConfig struct {
+	LogWriter io.Writer
+	DebugMode bool
+	JwtSecret []byte
+}
+
+func Init(c RouteConfig) *echo.Echo {
 	e := echo.New()
 
-	if config.Debug() {
-		middleware.DefaultLoggerConfig.Output = logd.DefaultWriter
+	if c.DebugMode {
+		middleware.DefaultLoggerConfig.Output = c.LogWriter
 		e.Use(middleware.Logger())
 	}
 
 	e.POST("/register", todo)
 	e.POST("/login", todo)
 
-	g := e.Group("", echojwt.WithConfig(echojwt.Config{SigningKey: config.JwtSecret()}))
+	g := e.Group("", echojwt.WithConfig(echojwt.Config{SigningKey: c.JwtSecret}))
 	g.GET("/secret", todo)
 
 	return e
