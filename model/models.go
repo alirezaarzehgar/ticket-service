@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	USERS_ROLE_ADMIN = "admin"
-	USERS_ROLE_USER  = "user"
+	USERS_ROLE_SUPER_ADMIN = "super_admin"
+	USERS_ROLE_ADMIN       = "admin"
+	USERS_ROLE_USER        = "user"
 )
 
 type User struct {

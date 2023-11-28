@@ -58,6 +58,6 @@ func Admin() model.User {
 		Username: os.Getenv("ADMIN_NAME"),
 		Email:    os.Getenv("ADMIN_EMAIL"),
 		Password: passStr,
-		Role:     model.USERS_ROLE_ADMIN,
+		Role:     model.USERS_ROLE_SUPER_ADMIN,
 	}
 }
