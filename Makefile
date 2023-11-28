@@ -24,6 +24,7 @@ update:
 	make prod
 
 test:
+	cp .env.example .env
 	docker-compose up db -d
 	sleep 5
 	go test -v ./...
