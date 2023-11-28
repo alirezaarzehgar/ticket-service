@@ -15,6 +15,9 @@ import (
 	"github.com/alirezaarzehgar/ticketservice/logd"
 )
 
+//	@version	2.0
+//	@title		ticket service
+
 func main() {
 	go logd.HandleInterrupt()
 	if err := godotenv.Load(".env"); err != nil {

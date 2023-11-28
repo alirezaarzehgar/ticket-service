@@ -4,8 +4,12 @@ import (
 	"io"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	_ "github.com/alirezaarzehgar/ticketservice/docs"
 )
 
 func todo(c echo.Context) error { return nil }
@@ -22,6 +26,8 @@ func Init(c RouteConfig) *echo.Echo {
 	if c.DebugMode {
 		middleware.DefaultLoggerConfig.Output = c.LogWriter
 		e.Use(middleware.Logger())
+
+		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	}
 
 	e.POST("/register", todo)

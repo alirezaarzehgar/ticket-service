@@ -2,12 +2,12 @@ APP_ENVS := MYSQL_HOST=localhost
 
 all: prod
 
-prod: stop .env
+prod: stop .env swag
 	go mod vendor
 	docker-compose build
 	docker-compose up -d
 
-dev: .env
+dev: .env swag
 	docker-compose up db -d
 	$(APP_ENVS) go run .
 
@@ -23,8 +23,13 @@ update:
 	git pull -f
 	make prod
 
-test:
+test: swag
 	cp .env.example .env
 	go mod vendor
 	docker-compose -f docker-compose-test.yml up --exit-code-from unit-tests unit-tests
 	docker-compose -f docker-compose-test.yml logs unit-tests
+	docker-compose down unit-tests --remove-orphans
+
+swag:
+	swag fmt
+	swag init
