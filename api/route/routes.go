@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	_ "github.com/alirezaarzehgar/ticketservice/docs"
+	"github.com/alirezaarzehgar/ticketservice/logd"
 )
 
 func todo(c echo.Context) error { return nil }
@@ -26,6 +27,8 @@ func Init(c RouteConfig) *echo.Echo {
 	if c.DebugMode {
 		middleware.DefaultLoggerConfig.Output = c.LogWriter
 		e.Use(middleware.Logger())
+
+		logd.RegisterHandlers(e.Group(""))
 
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	}
