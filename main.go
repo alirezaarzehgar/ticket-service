@@ -34,7 +34,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := database.Migrate(db); err != nil {
+	if err := database.Migrate(db, config.Admin()); err != nil {
 		slog.Error("migrate: ", err)
 		os.Exit(1)
 	}

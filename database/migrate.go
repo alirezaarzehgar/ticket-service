@@ -3,23 +3,10 @@ package database
 import (
 	"gorm.io/gorm"
 
-	"github.com/alirezaarzehgar/ticketservice/config"
 	"github.com/alirezaarzehgar/ticketservice/model"
-	"github.com/alirezaarzehgar/ticketservice/util"
 )
 
-func usersMigrate(db *gorm.DB) error {
-	c := config.Admin()
-	admin := model.User{
-		Username: c.Username,
-		Email:    c.Email,
-		Password: util.CreateSHA256(c.Password),
-		Role:     model.USERS_ROLE_ADMIN,
-	}
-	return db.Create(&admin).Error
-}
-
-func Migrate(db *gorm.DB) error {
+func Migrate(db *gorm.DB, defaultAdmin model.User) error {
 	if db.Migrator().HasTable(&model.User{}) {
 		return nil
 	}
@@ -29,7 +16,7 @@ func Migrate(db *gorm.DB) error {
 		return err
 	}
 
-	if err := usersMigrate(db); err != nil {
+	if err := db.Create(&defaultAdmin).Error; err != nil {
 		return err
 	}
 

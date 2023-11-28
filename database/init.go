@@ -6,11 +6,17 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-
-	"github.com/alirezaarzehgar/ticketservice/config"
 )
 
-func Init(c *config.DbConf, writer logger.Writer) (db *gorm.DB, err error) {
+type DbConf struct {
+	Host     string
+	User     string
+	Password string
+	DbName   string
+	Port     uint64
+}
+
+func Init(c *DbConf, writer logger.Writer) (db *gorm.DB, err error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		c.User, c.Password, c.Host, c.Port, c.DbName)
 

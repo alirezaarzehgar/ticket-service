@@ -1,8 +1,13 @@
 package config
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"strconv"
+
+	"github.com/alirezaarzehgar/ticketservice/database"
+	"github.com/alirezaarzehgar/ticketservice/model"
 )
 
 func ListenerAddr() string {
@@ -13,21 +18,13 @@ func JwtSecret() []byte {
 	return []byte(os.Getenv("JWT_SECRET"))
 }
 
-type DbConf struct {
-	Host     string
-	User     string
-	Password string
-	DbName   string
-	Port     uint64
-}
-
-func GetDb() (*DbConf, error) {
+func GetDb() (*database.DbConf, error) {
 	port, err := strconv.ParseUint(os.Getenv("MYSQL_PORT"), 10, 64)
 	if err != nil {
 		return nil, err
 	}
 
-	conf := DbConf{
+	conf := database.DbConf{
 		Host:     os.Getenv("MYSQL_HOST"),
 		User:     os.Getenv("MYSQL_USER"),
 		Password: os.Getenv("MYSQL_PASSWORD"),
@@ -53,10 +50,14 @@ type AdminConfig struct {
 	Username, Email, Password string
 }
 
-func Admin() AdminConfig {
-	return AdminConfig{
+func Admin() model.User {
+	hashByte := sha256.Sum256([]byte(os.Getenv("ADMIN_PASSWORD")))
+	passStr := hex.EncodeToString(hashByte[:])
+
+	return model.User{
 		Username: os.Getenv("ADMIN_NAME"),
 		Email:    os.Getenv("ADMIN_EMAIL"),
-		Password: os.Getenv("ADMIN_PASSWORD"),
+		Password: passStr,
+		Role:     model.USERS_ROLE_ADMIN,
 	}
 }
