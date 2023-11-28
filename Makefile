@@ -28,8 +28,9 @@ test: swag
 	go mod vendor
 	docker-compose -f docker-compose-test.yml up --exit-code-from unit-tests unit-tests
 	docker-compose -f docker-compose-test.yml logs unit-tests
-	docker-compose down unit-tests --remove-orphans
+	docker-compose -f docker-compose-test.yml down unit-tests --remove-orphans
 
 swag:
+	go install github.com/swaggo/swag/cmd/swag@latest
 	swag fmt
 	swag init
