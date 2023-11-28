@@ -23,5 +23,5 @@ jobs:
 
       - name: Run unit tests
         run: |
-          make test-run
+          make test
 
