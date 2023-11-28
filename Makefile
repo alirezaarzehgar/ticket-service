@@ -25,7 +25,7 @@ update:
 
 test-db:
 	cp .env.example .env
-	docker-compose up db -d
+	docker-compose up db
 	sleep 5
 
 test-run:
