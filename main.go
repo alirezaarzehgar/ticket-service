@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"log/slog"
+	"os"
 
 	"github.com/joho/godotenv"
 
@@ -23,12 +24,19 @@ func main() {
 
 	dbConf, err := config.GetDb()
 	if err != nil {
-		log.Fatal(".env: ", err)
+		slog.Error(".env: ", err)
+		os.Exit(1)
 	}
 
 	db, err := database.Init(dbConf)
 	if err != nil {
-		log.Fatal("database: ", err)
+		slog.Error("database: ", err)
+		os.Exit(1)
+	}
+
+	if err := database.Migrate(db); err != nil {
+		slog.Error("migrate: ", err)
+		os.Exit(1)
 	}
 
 	middleware.SetDB(db)
@@ -36,6 +44,7 @@ func main() {
 
 	slog.Info("Start application")
 	if err := route.Init().Start(config.ListenerAddr()); err != nil {
-		log.Print("echo start:", err)
+		slog.Error("echo start:", err)
+		os.Exit(1)
 	}
 }

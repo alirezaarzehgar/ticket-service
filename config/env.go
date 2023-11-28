@@ -52,3 +52,15 @@ func Debug() bool {
 	}
 	return v
 }
+
+type AdminConfig struct {
+	Username, Email, Password string
+}
+
+func Admin() AdminConfig {
+	return AdminConfig{
+		Username: os.Getenv("ADMIN_NAME"),
+		Email:    os.Getenv("ADMIN_EMAIL"),
+		Password: os.Getenv("ADMIN_PASSWORD"),
+	}
+}
