@@ -25,5 +25,6 @@ update:
 
 test:
 	cp .env.example .env
+	go mod vendor
 	docker-compose -f docker-compose-test.yml up --exit-code-from unit-tests unit-tests
 	docker-compose -f docker-compose-test.yml logs unit-tests
