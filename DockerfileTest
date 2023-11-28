@@ -1,0 +1,6 @@
+FROM golang:1.21.3
+WORKDIR /app
+COPY . .
+RUN cp .env.example .env
+ENTRYPOINT [ "bash" ]
+CMD [ "-c", "go test -v ./..." ]

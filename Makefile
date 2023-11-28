@@ -23,10 +23,7 @@ update:
 	git pull -f
 	make prod
 
-test-db:
+test:
 	cp .env.example .env
-	docker-compose up db
-	sleep 5
-
-test-run:
-	go test -v ./...
+	docker-compose -f docker-compose-test.yml up --exit-code-from unit-tests unit-tests
+	docker-compose -f docker-compose-test.yml logs unit-tests
