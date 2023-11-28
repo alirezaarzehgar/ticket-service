@@ -23,8 +23,10 @@ update:
 	git pull -f
 	make prod
 
-test:
+test-db:
 	cp .env.example .env
 	docker-compose up db -d
 	sleep 5
+
+test-run:
 	go test -v ./...
