@@ -17,10 +17,6 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
-      - name: Run database
-        run: |
-          make test-db
-
       - name: Run unit tests
         run: |
           make test
