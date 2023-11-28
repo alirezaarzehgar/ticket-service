@@ -22,3 +22,8 @@ stop:
 update:
 	git pull -f
 	make prod
+
+test:
+	docker-compose up db -d
+	sleep 5
+	go test -v ./...
