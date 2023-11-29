@@ -18,7 +18,7 @@ type User struct {
 	Role      string     `gorm:"default:user" json:"role"`
 	Blocked   bool       `gorm:"default:false" json:"blocked"`
 	Verified  bool       `gorm:"default:true" json:"verified"`
-	Organizes []Organize `gorm:"foreignKey:AdminID; many2many:org_admin"`
+	Organizes []Organize `gorm:"many2many:org_admin"`
 }
 
 type Organize struct {
