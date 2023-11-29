@@ -29,21 +29,22 @@ func Register(c echo.Context) error {
 	var user model.User
 	if err := util.ParseBody(c, &user, []string{"username", "password", "email"}, []string{"role"}); err != nil {
 		slog.Debug("parse body failed", "data", err, "body", c.Request().Body)
+		return err
 	}
 	slog.Debug("recieved body", "data", user)
 
 	if user.Email == "" || user.Password == "" {
-		return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_BAD_REQUEST})
+		return c.JSON(http.StatusBadRequest, util.Response{Status: false, Alert: util.ALERT_BAD_REQUEST})
 	}
 
 	user.Password = util.CreateSHA256(user.Password)
 	r := db.Create(&user)
 	if r.Error == gorm.ErrDuplicatedKey {
 		slog.Debug("conflict on database", "data", r.Error)
-		return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_USER_CONFLICT})
+		return c.JSON(http.StatusConflict, util.Response{Status: false, Alert: util.ALERT_USER_CONFLICT})
 	} else if r.Error != nil {
 		slog.Debug("db error on create user", "data", r.Error)
-		return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_INTERNAL})
+		return c.JSON(http.StatusInternalServerError, util.Response{Status: false, Alert: util.ALERT_INTERNAL})
 	}
 	slog.Debug("user created", "data", user)
 
