@@ -9,6 +9,7 @@ import (
 	"github.com/alirezaarzehgar/ticketservice/config"
 	"github.com/alirezaarzehgar/ticketservice/database"
 	"github.com/alirezaarzehgar/ticketservice/logd"
+	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/joho/godotenv"
 )
 
@@ -23,4 +24,6 @@ func TestMain(m *testing.M) {
 	middleware.SetDB(db)
 	handler.SetDB(db)
 	m.Run()
+
+	db.Unscoped().Delete(&model.User{}, "username", MOCK_USER["username"])
 }

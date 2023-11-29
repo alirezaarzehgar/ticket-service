@@ -58,7 +58,6 @@ func Register(c echo.Context) error {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Param			username	body		string	true	"Username"
 //	@Param			password	body		string	true	"Password"
 //	@Param			email		body		string	true	"Email"
 //	@Success		200			{object}	util.Response

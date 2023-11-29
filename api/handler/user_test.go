@@ -22,7 +22,6 @@ var (
 var e = echo.New()
 
 func TestRegister(t *testing.T) {
-	e := echo.New()
 	body, _ := json.Marshal(MOCK_USER)
 	req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewReader(body))
 	rec := httptest.NewRecorder()
@@ -35,8 +34,9 @@ func TestRegister(t *testing.T) {
 	}
 
 	req = httptest.NewRequest(http.MethodPost, "/register", nil)
+	rec = httptest.NewRecorder()
 	if err := handler.Register(e.NewContext(req, rec)); err == nil || rec.Code != http.StatusBadRequest {
-		t.Errorf("corner case failed: %v", rec.Body)
+		t.Errorf("body is nil but works. code: %v, err: %v, user: %v", rec.Code, err, rec.Body)
 	}
 }
 
