@@ -65,7 +65,27 @@ func Register(c echo.Context) error {
 //
 //	@Router			/login [POST]
 func Login(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	var loggedin int64
+	var user model.User
+	if err := util.ParseBody(c, &user, []string{"email", "password"}, []string{"role"}); err != nil {
+		slog.Debug("parse body failed", "data", err, "body", c.Request().Body)
+		return err
+	}
+
+	user.Password = util.CreateSHA256(user.Password)
+	db.Where(user).First(&user).Count(&loggedin)
+	if loggedin == 0 {
+		slog.Debug("user not found", "data", user)
+		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_LOGIN_UNAUTHORIZED})
+	}
+
+	token := util.CreateUserToken(user.ID, user.Email, user.Username)
+	slog.Debug("create token for", "data", user)
+	return c.JSON(http.StatusOK, util.Response{
+		Status: true,
+		Alert:  util.ALERT_SUCCESS,
+		Data:   map[string]string{"token": token},
+	})
 }
 
 // GetUserProfile godoc

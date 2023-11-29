@@ -33,15 +33,22 @@ func TestRegister(t *testing.T) {
 		t.Errorf("status code: %d != %d", rec.Code, http.StatusOK)
 	}
 
-	req = httptest.NewRequest(http.MethodPost, "/register", nil)
-	rec = httptest.NewRecorder()
-	if err := handler.Register(e.NewContext(req, rec)); err == nil || rec.Code != http.StatusBadRequest {
-		t.Errorf("body is nil but works. code: %v, err: %v, user: %v", rec.Code, err, rec.Body)
-	}
+	nilBodyTest(t, handler.Register)
 }
 
 func TestLogin(t *testing.T) {
+	body, _ := json.Marshal(MOCK_USER)
+	req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
+	rec := httptest.NewRecorder()
 
+	if err := handler.Login(e.NewContext(req, rec)); err != nil {
+		t.Errorf("error: %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("status code: %d != %d", rec.Code, http.StatusOK)
+	}
+
+	nilBodyTest(t, handler.Login)
 }
 
 func TestGetUserProfile(t *testing.T) {

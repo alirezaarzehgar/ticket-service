@@ -2,6 +2,8 @@ package handler_test
 
 import (
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/alirezaarzehgar/ticketservice/api/handler"
@@ -11,6 +13,7 @@ import (
 	"github.com/alirezaarzehgar/ticketservice/logd"
 	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
 )
 
 func TestMain(m *testing.M) {
@@ -26,4 +29,12 @@ func TestMain(m *testing.M) {
 	m.Run()
 
 	db.Unscoped().Delete(&model.User{}, "username", MOCK_USER["username"])
+}
+
+func nilBodyTest(t *testing.T, handler func(c echo.Context) error) {
+	req := httptest.NewRequest(http.MethodPost, "/register", nil)
+	rec := httptest.NewRecorder()
+	if err := handler(e.NewContext(req, rec)); err == nil || rec.Code != http.StatusBadRequest {
+		t.Errorf("body is nil but works. code: %v, err: %v, user: %v", rec.Code, err, rec.Body)
+	}
 }
