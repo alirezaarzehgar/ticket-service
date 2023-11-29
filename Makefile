@@ -23,9 +23,13 @@ update:
 	git pull -f
 	make prod
 
-test: swag
+test-compile: swag
 	cp .env.example .env
 	go mod vendor
+	go build .
+
+
+test:
 	docker-compose -f docker-compose-test.yml up --exit-code-from unit-tests unit-tests
 	docker-compose -f docker-compose-test.yml logs unit-tests
 	docker-compose -f docker-compose-test.yml down unit-tests --remove-orphans

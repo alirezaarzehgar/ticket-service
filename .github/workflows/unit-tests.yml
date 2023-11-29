@@ -18,7 +18,8 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Compile
-        run: go build .
+        run: |
+          make test-compile
 
       - name: Run unit tests
         run: |
