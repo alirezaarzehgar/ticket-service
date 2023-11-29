@@ -26,12 +26,13 @@ func CreateSHA256(pass string) string {
 
 var EXPTIME = jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 30))
 
-func CreateUserToken(id uint, email, user string) string {
+func CreateUserToken(id uint, email, user, role string) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
 		ID:        fmt.Sprint(id),
 		Issuer:    email,
 		Subject:   user,
 		ExpiresAt: EXPTIME,
+		Audience:  jwt.ClaimStrings{role},
 	})
 	bearer, _ := token.SignedString(config.JwtSecret())
 	return bearer
@@ -53,7 +54,14 @@ func GetUserId(c echo.Context) uint {
 
 	id, _ := strconv.Atoi(claims["jti"].(string))
 	return uint(id)
+}
 
+func GetUserRole(c echo.Context) string {
+	bearer := c.Request().Header.Get("Authorization")
+	token, _, _ := new(jwt.Parser).ParseUnverified(bearer[len("Bearer "):], jwt.MapClaims{})
+	claims := token.Claims.(jwt.MapClaims)
+
+	return claims["aud"].([]any)[0].(string)
 }
 
 func ParseBody(c echo.Context, obj any, requireds []string, mustIgnore []string) error {

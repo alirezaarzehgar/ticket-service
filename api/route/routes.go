@@ -42,7 +42,7 @@ func Init(c RouteConfig) *echo.Echo {
 	e.POST("/login", handler.Login)
 
 	g := e.Group("", echojwt.WithConfig(echojwt.Config{SigningKey: c.JwtSecret}))
-	g.GET("/user/profile", handler.GetUserProfile, middleware.UserOnly)
+	g.GET("/user/profile", handler.GetUserProfile)
 
 	g.POST("/admin/new", handler.CreateAdmin, middleware.ForSuperAdmin)
 	g.DELETE("/admin/:id", handler.DeleteAdmin, middleware.ForSuperAdmin)
@@ -57,7 +57,7 @@ func Init(c RouteConfig) *echo.Echo {
 
 	g.POST("/ticket/new", handler.SendTicket, middleware.UserOnly)
 	g.GET("/ticket/:org_id", handler.GetAllTickets)
-	g.POST("/ticket/:id/mail", handler.ReplyToTicket, middleware.ForSuperAdmin)
+	g.POST("/ticket/:id/mail", handler.ReplyToTicket, middleware.ForAdmin)
 
 	return e
 }

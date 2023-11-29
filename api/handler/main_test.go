@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/alirezaarzehgar/ticketservice/api/handler"
-	"github.com/alirezaarzehgar/ticketservice/api/middleware"
 	"github.com/alirezaarzehgar/ticketservice/config"
 	"github.com/alirezaarzehgar/ticketservice/database"
 	"github.com/alirezaarzehgar/ticketservice/logd"
@@ -24,7 +23,6 @@ func TestMain(m *testing.M) {
 	dbConf, _ := config.GetDb()
 	db, _ := database.Init(dbConf, log.New(logd.DefaultWriter, "", logd.DefaultLogFlags))
 	database.Migrate(db, config.Admin())
-	middleware.SetDB(db)
 	handler.SetDB(db)
 	m.Run()
 

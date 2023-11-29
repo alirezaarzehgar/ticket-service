@@ -8,7 +8,6 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/alirezaarzehgar/ticketservice/api/handler"
-	"github.com/alirezaarzehgar/ticketservice/api/middleware"
 	"github.com/alirezaarzehgar/ticketservice/api/route"
 	"github.com/alirezaarzehgar/ticketservice/config"
 	"github.com/alirezaarzehgar/ticketservice/database"
@@ -43,7 +42,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	middleware.SetDB(db)
 	handler.SetDB(db)
 
 	rc := route.RouteConfig{

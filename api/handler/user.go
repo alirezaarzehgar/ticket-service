@@ -82,7 +82,7 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_LOGIN_UNAUTHORIZED})
 	}
 
-	token := util.CreateUserToken(user.ID, user.Email, user.Username)
+	token := util.CreateUserToken(user.ID, user.Email, user.Username, user.Role)
 	slog.Debug("create token for", "data", user)
 	return c.JSON(http.StatusOK, util.Response{
 		Status: true,

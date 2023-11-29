@@ -1,15 +1,28 @@
 package middleware
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+
+	"github.com/alirezaarzehgar/ticketservice/model"
+	"github.com/alirezaarzehgar/ticketservice/util"
+	"github.com/labstack/echo/v4"
+)
 
 func ForSuperAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return echo.HandlerFunc(func(c echo.Context) error {
-		return next(c)
+		if util.GetUserRole(c) == model.USERS_ROLE_SUPER_ADMIN {
+			return next(c)
+		}
+		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_USER_ONLY})
 	})
 }
 
 func ForAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return echo.HandlerFunc(func(c echo.Context) error {
-		return next(c)
+		role := util.GetUserRole(c)
+		if role == model.USERS_ROLE_ADMIN || role == model.USERS_ROLE_SUPER_ADMIN {
+			return next(c)
+		}
+		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_USER_ONLY})
 	})
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/alirezaarzehgar/ticketservice/util"
 	"github.com/labstack/echo/v4"
 )
@@ -15,9 +16,9 @@ import (
 var (
 	mockSha256Value = "123"
 	mockSha256Hash  = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
-	// token payload: id: 1, email: "user@example.com", user: "user"
+	// token payload: id: 1, email: "admin@example.com", user: "admin", role: super admin
 	mockTokenID uint = 1
-	mockToken        = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ1c2VyQGV4YW1wbGUuY29tIiwic3ViIjoidXNlciIsImV4cCI6MTcwMzg2Mjk1NywianRpIjoiMSJ9.Jx_mEygZjnkTNif2VEgWsFxAn7soV8oKYih51ZZ7I-w"
+	mockToken        = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhZG1pbkBleGFtcGxlLmNvbSIsInN1YiI6ImFkbWluIiwiYXVkIjpbImFkbWluIl0sImV4cCI6MTcwMzg4NTY3OSwianRpIjoiMSJ9.LoYd4E66YP8j5mQbWYYi9FBNRwGq0Zj3NNXi1Nohvb0"
 )
 
 func TestCreateSHA256(t *testing.T) {
@@ -27,8 +28,8 @@ func TestCreateSHA256(t *testing.T) {
 }
 
 func TestCreateUserToken(t *testing.T) {
-	expectedHeaderPayload := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ1c2VyQGV4YW1wbGUuY29tIiwic3ViIjoidXNlciIsImV4cCI6MTcwMzg2Mjk1OSwianRpIjoiMSJ9."
-	if real := util.CreateUserToken(1, "user@example.com", "user"); strings.HasPrefix(real, expectedHeaderPayload) {
+	expectedHeaderPayload := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhZG1pbkBleGFtcGxlLmNvbSIsInN1YiI6ImFkbWluIiwiYXVkIjpbImFkbWluIl0sImV4cCI6MTcwMzg4NTY3OSwianRpIjoiMSJ9."
+	if real := util.CreateUserToken(1, "user@example.com", "user", model.USERS_ROLE_USER); strings.HasPrefix(real, expectedHeaderPayload) {
 		t.Errorf("generated token haven't right header and payload: %s", real)
 	}
 }
@@ -76,5 +77,17 @@ func TestParseBody(t *testing.T) {
 
 	if err := util.ParseBody(e.NewContext(req, rec), &d2p, []string{"bad field"}, nil); err == nil {
 		t.Errorf("function should return error when a required field does not exists")
+	}
+}
+
+func TestGetUserRole(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/path", nil)
+	req.Header.Set("Authorization", "Bearer "+mockToken)
+	rec := httptest.NewRecorder()
+	real := util.GetUserRole(e.NewContext(req, rec))
+
+	if real != model.USERS_ROLE_ADMIN {
+		t.Errorf("%v is not super admin", real)
 	}
 }
