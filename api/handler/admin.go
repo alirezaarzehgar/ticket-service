@@ -13,6 +13,9 @@ import (
 //	@Tags			admin
 //	@Accept			json
 //	@Produce		json
+//	@Param			username	body		string	true	"Username"
+//	@Param			password	body		string	true	"Password"
+//	@Param			email		body		string	true	"Email"
 //	@Success		200	{object}	Response
 //	@Failure		400	{object}	Response
 //
@@ -41,11 +44,15 @@ func DeleteAdmin(c echo.Context) error {
 //
 //	@Summary		Edit admin
 //	@Description	Super admin can edit every normal admin.
-//	@Description	Admin can edit hisself.
+//	@Description	Admin can edit hisself. But cannot change his role.
 //	@Tags			admin
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int	true	"User ID"
+//	@Param			username	body		string	false	"Username"
+//	@Param			password	body		string	false	"Password"
+//	@Param			email		body		string	false	"Email"
+//	@Param			role		body		string	false	"User role (super_admin|admin|user)"
 //	@Success		200	{object}	Response
 //	@Failure		400	{object}	ResponseError
 //
