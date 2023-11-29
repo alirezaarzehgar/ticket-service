@@ -12,9 +12,9 @@ const (
 
 type User struct {
 	gorm.Model
-	Username  string     `gorm:"not null; unique" json:"user"`
+	Username  string     `gorm:"not null; unique" json:"username"`
 	Email     string     `gorm:"not null; unique" json:"email"`
-	Password  string     `gorm:"not null" json:"pass,omitempty"`
+	Password  string     `gorm:"not null" json:"password,omitempty"`
 	Role      string     `gorm:"default:user" json:"role"`
 	Blocked   bool       `gorm:"default:false" json:"blocked"`
 	Verified  bool       `gorm:"default:true" json:"verified"`

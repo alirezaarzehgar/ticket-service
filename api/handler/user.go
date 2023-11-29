@@ -29,8 +29,9 @@ func Register(c echo.Context) error {
 	if err := util.ParseBody(c, &user, []string{"username", "password", "email"}, []string{"role"}); err != nil {
 		slog.Debug("parse body failed", "data", err, "body", c.Request().Body)
 	}
+	slog.Debug("recieved body", "data", user)
 
-	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[any]string{}})
+	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[string]any{}})
 }
 
 // Login godoc
