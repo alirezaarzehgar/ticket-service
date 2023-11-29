@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/alirezaarzehgar/ticketservice/util"
 )
 
@@ -23,8 +24,11 @@ import (
 //
 //	@Router			/admin/new [POST]
 func CreateAdmin(c echo.Context) error {
-
-	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[any]string{}})
+	var admin model.User
+	if err := util.ParseBody(c, &admin, []string{"username", "password", "email"}, nil); err != nil {
+		return nil
+	}
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS})
 }
 
 // DeleteAdmin godoc

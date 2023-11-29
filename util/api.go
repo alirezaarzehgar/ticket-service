@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -64,17 +65,25 @@ func GetUserRole(c echo.Context) string {
 	return claims["aud"].([]any)[0].(string)
 }
 
+type eInfo struct {
+	alert string
+	err   error
+}
+
 func ParseBody(c echo.Context, obj any, requireds []string, mustIgnore []string) error {
+	var e eInfo
+	var jsonbody []byte
+
 	body, _ := ioutil.ReadAll(c.Request().Body)
 	out := make(map[string]any)
 
 	if body == nil {
-		c.JSON(http.StatusBadRequest, Response{Status: false, Alert: ALERT_BAD_REQUEST, Data: nil})
-		return fmt.Errorf("empty request is not accepted")
+		e = eInfo{ALERT_BAD_REQUEST, fmt.Errorf("empty request is not accepted")}
+		goto failure
 	}
 	if err := json.Unmarshal(body, &out); err != nil {
-		c.JSON(http.StatusBadRequest, Response{Status: false, Alert: ALERT_BAD_REQUEST, Data: nil})
-		return fmt.Errorf("wrong json data recieved. marshalling error: %v", err)
+		e = eInfo{ALERT_BAD_REQUEST, fmt.Errorf("wrong json data recieved. marshalling error: %v", err)}
+		goto failure
 	}
 
 	for _, i := range mustIgnore {
@@ -93,16 +102,21 @@ func ParseBody(c echo.Context, obj any, requireds []string, mustIgnore []string)
 			}
 		}
 		if !found {
-			c.JSON(http.StatusBadRequest, Response{Status: false, Alert: ALERT_REQUIRED_FIELDS, Data: nil})
-			return fmt.Errorf("%s is required on this request", r)
+			e = eInfo{ALERT_REQUIRED_FIELDS, fmt.Errorf("%s is required on this request", r)}
+			goto failure
 		}
 	}
 
-	jsonbody, _ := json.Marshal(out)
+	jsonbody, _ = json.Marshal(out)
 	if err := json.Unmarshal(jsonbody, obj); err != nil {
-		c.JSON(http.StatusBadRequest, Response{Status: false, Alert: ALERT_BAD_REQUEST, Data: nil})
-		return fmt.Errorf("wrong json data recieved. marshalling error: %v", err)
+		e = eInfo{ALERT_REQUIRED_FIELDS, fmt.Errorf("wrong json data recieved. marshalling error: %v", err)}
+		goto failure
 	}
 
 	return nil
+
+failure:
+	slog.Debug(e.err.Error(), "data", string(body))
+	c.JSON(http.StatusBadRequest, Response{Alert: e.alert})
+	return e.err
 }
