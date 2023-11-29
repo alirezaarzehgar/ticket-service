@@ -3,13 +3,17 @@ package util
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 
+	"github.com/alirezaarzehgar/ticketservice/api/handler"
 	"github.com/alirezaarzehgar/ticketservice/config"
 )
 
@@ -51,4 +55,47 @@ func GetUserId(c echo.Context) uint {
 	id, _ := strconv.Atoi(claims["jti"].(string))
 	return uint(id)
 
+}
+
+func ParseBody(c echo.Context, obj any, requireds []string, mustIgnore []string) error {
+	body, _ := ioutil.ReadAll(c.Request().Body)
+	out := make(map[string]any)
+
+	if body == nil {
+		c.JSON(http.StatusBadRequest, handler.Response{Status: false, Alert: handler.ALERT_BAD_REQUEST, Data: nil})
+		return fmt.Errorf("empty request is not accepted")
+	}
+	if err := json.Unmarshal(body, &out); err != nil {
+		c.JSON(http.StatusBadRequest, handler.Response{Status: false, Alert: handler.ALERT_BAD_REQUEST, Data: nil})
+		return fmt.Errorf("wrong json data recieved. marshalling error: %v", err)
+	}
+
+	for _, i := range mustIgnore {
+		for key := range out {
+			if key == i {
+				delete(out, i)
+			}
+		}
+	}
+
+	for _, r := range requireds {
+		found := false
+		for key := range out {
+			if key == r {
+				found = true
+			}
+		}
+		if !found {
+			c.JSON(http.StatusBadRequest, handler.Response{Status: false, Alert: handler.ALERT_REQUIRED_FIELDS, Data: nil})
+			return fmt.Errorf("%s is required on this request", r)
+		}
+	}
+
+	jsonbody, _ := json.Marshal(out)
+	if err := json.Unmarshal(jsonbody, obj); err != nil {
+		c.JSON(http.StatusBadRequest, handler.Response{Status: false, Alert: handler.ALERT_BAD_REQUEST, Data: nil})
+		return fmt.Errorf("wrong json data recieved. marshalling error: %v", err)
+	}
+
+	return nil
 }

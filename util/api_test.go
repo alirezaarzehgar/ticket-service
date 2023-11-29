@@ -1,6 +1,8 @@
 package util_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -49,5 +51,30 @@ func TestGetUserId(t *testing.T) {
 
 	if id := util.GetUserId(e.NewContext(req, rec)); id != mockTokenID {
 		t.Errorf("Wrong user id!")
+	}
+}
+
+func TestParseBody(t *testing.T) {
+	type CModel struct {
+		Req, Ign, Opt int
+	}
+	body := CModel{1, 2, 3}
+	jsonBody, _ := json.Marshal(body)
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/path", bytes.NewReader(jsonBody))
+	req.Header.Set("Authorization", "Bearer "+mockToken)
+	rec := httptest.NewRecorder()
+
+	var d2p CModel
+	if err := util.ParseBody(e.NewContext(req, rec), &d2p, []string{"Req"}, []string{"Ign"}); err != nil {
+		t.Errorf("error: %v", err)
+	}
+	if !(d2p.Req == 1 && d2p.Ign == 0 && d2p.Opt == 3) {
+		t.Errorf("%v != %v", d2p, CModel{1, 0, 3})
+	}
+
+	if err := util.ParseBody(e.NewContext(req, rec), &d2p, []string{"bad field"}, nil); err == nil {
+		t.Errorf("function should return error when a required field does not exists")
 	}
 }

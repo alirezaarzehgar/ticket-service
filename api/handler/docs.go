@@ -10,6 +10,7 @@ const (
 	ALERT_INSECURE_PASSWORD  = "Insecure password"
 	ALERT_LOGIN_UNAUTHORIZED = "Your password or email address is invalid"
 	ALERT_BAD_REQUEST        = "Bad request"
+	ALERT_REQUIRED_FIELDS    = "Your request is in complete. You should fill all required fields"
 	ALERT_INVALID_TOKEN      = "Invalid JWT token"
 	ALERT_BAD_FILE           = "Invalid file format"
 	ALERT_STORY_WRONG        = "Wrong story field"

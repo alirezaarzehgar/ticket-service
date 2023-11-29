@@ -21,6 +21,7 @@ import (
 //
 //	@Router			/register [POST]
 func Register(c echo.Context) error {
+	
 	return c.JSON(http.StatusOK, Response{false, ALERT_SUCCESS, nil})
 }
 
