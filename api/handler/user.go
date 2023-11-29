@@ -13,8 +13,11 @@ import (
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	Response
-//	@Failure		400	{object}	ResponseError"
+//	@Param			username	body		string	true	"Username"
+//	@Param			password	body		string	true	"Password"
+//	@Param			email		body		string	true	"Email"
+//	@Success		200			{object}	Response
+//	@Failure		400			{object}	ResponseError"
 //
 //	@Router			/register [POST]
 func Register(c echo.Context) error {
