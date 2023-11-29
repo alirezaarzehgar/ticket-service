@@ -16,8 +16,8 @@ import (
 //	@Param			username	body		string	true	"Username"
 //	@Param			password	body		string	true	"Password"
 //	@Param			email		body		string	true	"Email"
-//	@Success		200	{object}	Response
-//	@Failure		400	{object}	Response
+//	@Success		200			{object}	Response
+//	@Failure		400			{object}	Response
 //
 //	@Router			/admin/new [POST]
 func CreateAdmin(c echo.Context) error {
@@ -48,13 +48,13 @@ func DeleteAdmin(c echo.Context) error {
 //	@Tags			admin
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int	true	"User ID"
+//	@Param			id			path		int		true	"User ID"
 //	@Param			username	body		string	false	"Username"
 //	@Param			password	body		string	false	"Password"
 //	@Param			email		body		string	false	"Email"
 //	@Param			role		body		string	false	"User role (super_admin|admin|user)"
-//	@Success		200	{object}	Response
-//	@Failure		400	{object}	ResponseError
+//	@Success		200			{object}	Response
+//	@Failure		400			{object}	ResponseError
 //
 //	@Router			/admin/{id} [PUT]
 func EditAdmin(c echo.Context) error {
