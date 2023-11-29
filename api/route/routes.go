@@ -2,6 +2,7 @@ package route
 
 import (
 	"io"
+	"log/slog"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -25,6 +26,7 @@ func Init(c RouteConfig) *echo.Echo {
 	e := echo.New()
 
 	if c.DebugMode {
+		slog.Debug("enable logger and swagger cause to debug mode")
 		middleware.DefaultLoggerConfig.Output = c.LogWriter
 		e.Use(middleware.Logger())
 

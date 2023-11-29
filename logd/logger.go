@@ -15,6 +15,7 @@ var (
 	DefaultLogDir     = "./log"
 	DefaultDateFormat = "2006-01-02"
 	DefaultLogFlags   = log.Ltime | log.Lshortfile
+	DefaultLogLevel   = slog.LevelDebug
 )
 
 func changeLogWriter() {
@@ -34,7 +35,7 @@ func InitLogger() {
 	gocron.Every(1).Day().Do(changeLogWriter)
 	gocron.Start()
 
-	slog.SetDefault(slog.New(slog.NewJSONHandler(DefaultWriter, nil)))
+	slog.SetDefault(slog.New(slog.NewJSONHandler(DefaultWriter, &slog.HandlerOptions{Level: DefaultLogLevel})))
 }
 
 func stopLogger() {

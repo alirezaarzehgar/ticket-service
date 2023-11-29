@@ -30,6 +30,7 @@ func main() {
 		slog.Error(".env: ", err)
 		os.Exit(1)
 	}
+	slog.Debug("get database config", "data", dbConf)
 
 	db, err := database.Init(dbConf, log.New(logd.DefaultWriter, "", logd.DefaultLogFlags))
 	if err != nil {
@@ -45,12 +46,15 @@ func main() {
 	middleware.SetDB(db)
 	handler.SetDB(db)
 
-	slog.Info("Start application")
-	e := route.Init(route.RouteConfig{
+	rc := route.RouteConfig{
 		LogWriter: logd.DefaultWriter,
 		DebugMode: config.Debug(),
 		JwtSecret: config.JwtSecret(),
-	})
+	}
+	slog.Debug("route config", "data", rc)
+
+	slog.Info("Start application")
+	e := route.Init(rc)
 	if err := e.Start(config.ListenerAddr()); err != nil {
 		slog.Error("echo start:", err)
 		os.Exit(1)
