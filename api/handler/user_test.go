@@ -33,6 +33,11 @@ func TestRegister(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Errorf("status code: %d != %d", rec.Code, http.StatusOK)
 	}
+
+	req = httptest.NewRequest(http.MethodPost, "/register", nil)
+	if err := handler.Register(e.NewContext(req, rec)); err == nil || rec.Code != http.StatusBadRequest {
+		t.Errorf("corner case failed: %v", rec.Body)
+	}
 }
 
 func TestLogin(t *testing.T) {
