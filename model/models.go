@@ -12,10 +12,31 @@ const (
 
 type User struct {
 	gorm.Model
-	Username string `gorm:"not null; unique" json:"user"`
-	Email    string `gorm:"not null; unique" json:"email"`
-	Password string `gorm:"not null" json:"pass,omitempty"`
-	Role     string `gorm:"default:user" json:"role"`
-	Blocked  bool   `gorm:"default:false" json:"blocked"`
-	Verified bool   `gorm:"default:true" json:"verified"`
+	Username  string     `gorm:"not null; unique" json:"user"`
+	Email     string     `gorm:"not null; unique" json:"email"`
+	Password  string     `gorm:"not null" json:"pass,omitempty"`
+	Role      string     `gorm:"default:user" json:"role"`
+	Blocked   bool       `gorm:"default:false" json:"blocked"`
+	Verified  bool       `gorm:"default:true" json:"verified"`
+	Organizes []Organize `gorm:"foreignKey:AdminID; many2many:org_admin"`
+}
+
+type Organize struct {
+	gorm.Model
+	Name        string `gorm:"not null; unique" json:"name"`
+	Address     string `gorm:"not null" json:"address"`
+	PhoneNumber string `gorm:"not null; unique" json:"phone_number"`
+	WebsiteUrl  string `json:"website_url"`
+	Admins      []User `gorm:"many2many:org_admin"`
+	Tickets     []Ticket
+}
+
+type Ticket struct {
+	UserID        uint   `gorm:"not null" json:"user_id"`
+	OrganizeID    uint   `gorm:"not null" json:"org_id"`
+	Title         string `gorm:"not null" json:"title"`
+	Body          string `gorm:"not null" json:"body"`
+	AttachmentUrl string `json:"attachment_url"`
+	User          *User
+	Organize      *Organize
 }
