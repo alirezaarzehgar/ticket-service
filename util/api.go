@@ -13,7 +13,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 
-	"github.com/alirezaarzehgar/ticketservice/api/handler"
 	"github.com/alirezaarzehgar/ticketservice/config"
 )
 
@@ -62,11 +61,11 @@ func ParseBody(c echo.Context, obj any, requireds []string, mustIgnore []string)
 	out := make(map[string]any)
 
 	if body == nil {
-		c.JSON(http.StatusBadRequest, handler.Response{Status: false, Alert: handler.ALERT_BAD_REQUEST, Data: nil})
+		c.JSON(http.StatusBadRequest, Response{Status: false, Alert: ALERT_BAD_REQUEST, Data: nil})
 		return fmt.Errorf("empty request is not accepted")
 	}
 	if err := json.Unmarshal(body, &out); err != nil {
-		c.JSON(http.StatusBadRequest, handler.Response{Status: false, Alert: handler.ALERT_BAD_REQUEST, Data: nil})
+		c.JSON(http.StatusBadRequest, Response{Status: false, Alert: ALERT_BAD_REQUEST, Data: nil})
 		return fmt.Errorf("wrong json data recieved. marshalling error: %v", err)
 	}
 
@@ -86,14 +85,14 @@ func ParseBody(c echo.Context, obj any, requireds []string, mustIgnore []string)
 			}
 		}
 		if !found {
-			c.JSON(http.StatusBadRequest, handler.Response{Status: false, Alert: handler.ALERT_REQUIRED_FIELDS, Data: nil})
+			c.JSON(http.StatusBadRequest, Response{Status: false, Alert: ALERT_REQUIRED_FIELDS, Data: nil})
 			return fmt.Errorf("%s is required on this request", r)
 		}
 	}
 
 	jsonbody, _ := json.Marshal(out)
 	if err := json.Unmarshal(jsonbody, obj); err != nil {
-		c.JSON(http.StatusBadRequest, handler.Response{Status: false, Alert: handler.ALERT_BAD_REQUEST, Data: nil})
+		c.JSON(http.StatusBadRequest, Response{Status: false, Alert: ALERT_BAD_REQUEST, Data: nil})
 		return fmt.Errorf("wrong json data recieved. marshalling error: %v", err)
 	}
 

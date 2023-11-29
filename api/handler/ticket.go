@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/alirezaarzehgar/ticketservice/util"
 )
 
 // SendTicket godoc
@@ -18,12 +20,12 @@ import (
 //	@Param			title			body		string	true	"Title"
 //	@Param			body			body		string	true	"Body"
 //	@Param			attachment_url	body		string	true	"Attachment Url"
-//	@Success		200				{object}	Response
-//	@Failure		400				{object}	ResponseError
+//	@Success		200				{object}	util.Response
+//	@Failure		400				{object}	util.ResponseError
 //
 //	@Router			/ticket/new [POST]
 func SendTicket(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[any]string{}})
 }
 
 // GetAllTickets godoc
@@ -35,8 +37,8 @@ func SendTicket(c echo.Context) error {
 //	@Accept			json
 //	@Produce		json
 //	@Param			org_id	path		int	true	"Organization ID"
-//	@Success		200		{object}	Response
-//	@Failure		400		{object}	ResponseError
+//	@Success		200		{object}	util.Response
+//	@Failure		400		{object}	util.ResponseError
 //
 //	@Router			/ticket/{org_id} [GET]
 func GetAllTickets(c echo.Context) error {
@@ -52,8 +54,8 @@ func GetAllTickets(c echo.Context) error {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int	true	"User ID"
-//	@Success		200	{object}	Response
-//	@Failure		400	{object}	ResponseError
+//	@Success		200	{object}	util.Response
+//	@Failure		400	{object}	util.ResponseError
 //
 //	@Router			/ticket/{id}/mail [POST]
 func ReplyToTicket(c echo.Context) error {

@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/alirezaarzehgar/ticketservice/util"
 )
 
 // CreateOrganization godoc
@@ -19,12 +21,12 @@ import (
 //	@Param			phone_number	body		string	false	"Phone number"
 //	@Param			website_url		body		string	false	"Website URL"
 //
-//	@Success		200				{object}	Response
-//	@Failure		400				{object}	ResponseError
+//	@Success		200				{object}	util.Response
+//	@Failure		400				{object}	util.ResponseError
 //
 //	@Router			/organization/new [POST]
 func CreateOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[any]string{}})
 }
 
 // GetAllOrganizations godoc
@@ -34,8 +36,8 @@ func CreateOrganization(c echo.Context) error {
 //	@Tags			organization
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	Response
-//	@Failure		400	{object}	ResponseError
+//	@Success		200	{object}	util.Response
+//	@Failure		400	{object}	util.ResponseError
 //
 //	@Router			/organization/all [GET]
 func GetAllOrganizations(c echo.Context) error {
@@ -53,8 +55,8 @@ func GetAllOrganizations(c echo.Context) error {
 //	@Param			address			body		string	false	"Address"
 //	@Param			phone_number	body		string	false	"Phone number"
 //	@Param			website_url		body		string	false	"Website URL"
-//	@Success		200				{object}	Response
-//	@Failure		400				{object}	ResponseError
+//	@Success		200				{object}	util.Response
+//	@Failure		400				{object}	util.ResponseError
 //
 //	@Router			/organization/{id} [PUT]
 func EditOrganization(c echo.Context) error {
@@ -70,8 +72,8 @@ func EditOrganization(c echo.Context) error {
 //	@Produce		json
 //	@Param			org_id	path		string	true	"Organization Path"
 //	@Param			user_id	path		string	true	"User ID"
-//	@Success		200		{object}	Response
-//	@Failure		400		{object}	ResponseError
+//	@Success		200		{object}	util.Response
+//	@Failure		400		{object}	util.ResponseError
 //
 //	@Router			/organization/hire-admin/{org_id}/{user_id} [POST]
 func AssignAdminToOrganization(c echo.Context) error {
@@ -86,8 +88,8 @@ func AssignAdminToOrganization(c echo.Context) error {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		string	true	"Organization ID"
-//	@Success		200	{object}	Response
-//	@Failure		400	{object}	ResponseError
+//	@Success		200	{object}	util.Response
+//	@Failure		400	{object}	util.ResponseError
 //
 //	@Router			/organization/{id} [DELETE]
 func DeleteOrganization(c echo.Context) error {
