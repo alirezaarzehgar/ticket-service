@@ -23,6 +23,8 @@ import (
 //	@Param			email		body		string	true	"Email"
 //	@Success		200			{object}	util.Response
 //	@Failure		400			{object}	util.ResponseError"
+//	@Failure		409			{object}	util.ResponseError"
+//	@Failure		500			{object}	util.ResponseError"
 //
 //	@Router			/register [POST]
 func Register(c echo.Context) error {
@@ -62,6 +64,7 @@ func Register(c echo.Context) error {
 //	@Param			email		body		string	true	"Email"
 //	@Success		200			{object}	util.Response
 //	@Failure		400			{object}	util.ResponseError
+//	@Failure		401			{object}	util.ResponseError
 //
 //	@Router			/login [POST]
 func Login(c echo.Context) error {
