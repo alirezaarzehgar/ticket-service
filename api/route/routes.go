@@ -42,7 +42,7 @@ func Init(c RouteConfig) *echo.Echo {
 	e.POST("/login", handler.Login)
 
 	g := e.Group("", echojwt.WithConfig(echojwt.Config{SigningKey: c.JwtSecret}))
-	g.GET("/user/profile/:id", handler.GetUserProfile, middleware.UserOnly)
+	g.GET("/user/profile", handler.GetUserProfile, middleware.UserOnly)
 
 	g.POST("/admin/new", handler.CreateAdmin, middleware.ForSuperAdmin)
 	g.DELETE("/admin/:id", handler.DeleteAdmin, middleware.ForSuperAdmin)

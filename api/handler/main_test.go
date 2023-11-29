@@ -31,8 +31,8 @@ func TestMain(m *testing.M) {
 	db.Unscoped().Delete(&model.User{}, "username", MOCK_USER["username"])
 }
 
-func nilBodyTest(t *testing.T, handler func(c echo.Context) error) {
-	req := httptest.NewRequest(http.MethodPost, "/register", nil)
+func nilBodyTest(t *testing.T, handler func(c echo.Context) error, method string, target string) {
+	req := httptest.NewRequest(method, target, nil)
 	rec := httptest.NewRecorder()
 	if err := handler(e.NewContext(req, rec)); err == nil || rec.Code != http.StatusBadRequest {
 		t.Errorf("body is nil but works. code: %v, err: %v, user: %v", rec.Code, err, rec.Body)

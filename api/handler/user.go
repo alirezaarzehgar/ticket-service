@@ -98,11 +98,17 @@ func Login(c echo.Context) error {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int	true	"User ID"
 //	@Success		200	{object}	util.Response
 //	@Failure		400	{object}	util.ResponseError
 //
-//	@Router			/user/profile/{id} [GET]
+//	@Router			/user/profile [GET]
 func GetUserProfile(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	var user model.User
+	if err := db.First(&user, util.GetUserId(c)).Error; err != nil {
+		slog.Debug("invalid id", "data", c.Param("id"))
+		return c.JSON(http.StatusInternalServerError, util.Response{Status: false, Alert: util.ALERT_INTERNAL})
+	}
+
+	user.Password = ""
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: user})
 }
