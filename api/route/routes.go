@@ -10,6 +10,7 @@ import (
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
+	"github.com/alirezaarzehgar/ticketservice/api/handler"
 	"github.com/alirezaarzehgar/ticketservice/api/middleware"
 	"github.com/alirezaarzehgar/ticketservice/logd"
 
@@ -37,25 +38,26 @@ func Init(c RouteConfig) *echo.Echo {
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	}
 
-	e.POST("/register", todo)
-	e.POST("/login", todo)
+	e.POST("/register", handler.Register)
+	e.POST("/login", handler.Login)
 
 	g := e.Group("", echojwt.WithConfig(echojwt.Config{SigningKey: c.JwtSecret}))
+	g.GET("/user/profile/:id", handler.GetUserProfile, middleware.UserOnly)
 
-	g.POST("/admin/new", todo, middleware.ForSuperAdmin)
-	g.DELETE("/admin/:id", todo, middleware.ForSuperAdmin)
-	g.PUT("/admin/:id", todo, middleware.ForSuperAdmin)
-	g.POST("/admin/promote/:id", todo, middleware.ForSuperAdmin)
+	g.POST("/admin/new", handler.CreateAdmin, middleware.ForSuperAdmin)
+	g.DELETE("/admin/:id", handler.DeleteAdmin, middleware.ForSuperAdmin)
+	g.PUT("/admin/:id", handler.EditAdmin, middleware.ForSuperAdmin)
+	g.POST("/admin/promote/:id", handler.PromoteAdmin, middleware.ForSuperAdmin)
 
-	g.GET("/organize/all", todo)
-	g.PUT("/organize/:id", todo, middleware.ForAdmin)
-	g.POST("/organize/new", todo, middleware.ForSuperAdmin)
-	g.POST("/organize/hire-admin/:org_id/:user_id", todo, middleware.ForSuperAdmin)
-	g.DELETE("/organize/:id", todo, middleware.ForSuperAdmin)
+	g.POST("/organization/new", handler.CreateOrganization, middleware.ForSuperAdmin)
+	g.GET("/organization/all", handler.GetAllOrganizations)
+	g.PUT("/organization/:id", handler.EditOrganization, middleware.ForAdmin)
+	g.POST("/organization/hire-admin/:org_id/:user_id", handler.AssignAdminToOrganization, middleware.ForSuperAdmin)
+	g.DELETE("/organization/:id", handler.DeleteOrganization, middleware.ForSuperAdmin)
 
-	g.POST("/ticket/new", todo, middleware.UserOnly)
-	g.GET("/tickets/all", todo)
-	g.POST("/ticket/:id/mail", todo, middleware.ForSuperAdmin)
+	g.POST("/ticket/new", handler.SendTicket, middleware.UserOnly)
+	g.GET("/ticket/:org_id", handler.GetAllTickets)
+	g.POST("/ticket/:id/mail", handler.ReplyToTicket, middleware.ForSuperAdmin)
 
 	return e
 }
