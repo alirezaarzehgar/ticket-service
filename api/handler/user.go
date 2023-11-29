@@ -6,6 +6,7 @@ import (
 
 	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 
 	"github.com/alirezaarzehgar/ticketservice/util"
 )
@@ -31,7 +32,22 @@ func Register(c echo.Context) error {
 	}
 	slog.Debug("recieved body", "data", user)
 
-	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[string]any{}})
+	if user.Email == "" || user.Password == "" {
+		return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	user.Password = util.CreateSHA256(user.Password)
+	r := db.Create(&user)
+	if r.Error == gorm.ErrDuplicatedKey {
+		slog.Debug("conflict on database", "data", r.Error)
+		return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_USER_CONFLICT})
+	} else if r.Error != nil {
+		slog.Debug("db error on create user", "data", r.Error)
+		return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_INTERNAL})
+	}
+	slog.Debug("user created", "data", user)
+
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: user})
 }
 
 // Login godoc
