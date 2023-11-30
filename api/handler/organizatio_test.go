@@ -50,7 +50,7 @@ func TestGetAllOrganizations(t *testing.T) {
 		Data   []model.Organization
 	}{}
 	json.NewDecoder(rec.Body).Decode(&res)
-	if len(res.Data) <= 1 {
+	if len(res.Data) < 1 {
 		slog.Debug("decoded response", "data", res)
 		t.Errorf("lest one org registred on db. org len: %v", len(res.Data))
 	}
