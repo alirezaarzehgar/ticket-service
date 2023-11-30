@@ -90,7 +90,24 @@ func TestEditOrganization(t *testing.T) {
 }
 
 func TestAssignAdminToOrganization(t *testing.T) {
+	var org model.Organization
+	db.Select("id").Last(&org)
 
+	var user model.User
+	db.Select("id").Last(&user)
+
+	req := httptest.NewRequest(http.MethodPut, "/organization/hire-admin/1/1", nil)
+	rec := httptest.NewRecorder()
+	req.Header.Set("Authorization", "Bearer "+ADMIN_TOKEN)
+
+	c := e.NewContext(req, rec)
+	c.SetParamNames("org_id", "user_id")
+	c.SetParamValues(fmt.Sprint(org.ID), fmt.Sprint(user.ID))
+
+	fmt.Println(org.ID, user.ID)
+	if handler.AssignAdminToOrganization(c); rec.Code != http.StatusOK {
+		t.Errorf("error on hireing an admin: %v", rec.Code)
+	}
 }
 
 func TestDeleteOrganization(t *testing.T) {
