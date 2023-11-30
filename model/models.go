@@ -36,6 +36,7 @@ type Organization struct {
 }
 
 type Ticket struct {
+	gorm.Model
 	UserID         uint   `gorm:"not null" json:"user_id"`
 	OrganizationID uint   `gorm:"not null" json:"org_id"`
 	Title          string `gorm:"not null" json:"title"`

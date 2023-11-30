@@ -87,7 +87,7 @@ func UploadAsset(c echo.Context) error {
 	slog.Debug("copy transfered file to assets directory")
 
 	return c.JSON(http.StatusOK, util.Response{
-		Status: false,
+		Status: true,
 		Alert:  util.ALERT_SUCCESS,
 		Data:   map[string]any{"path": filepath},
 	})
@@ -124,7 +124,7 @@ func SendTicket(c echo.Context) error {
 	ticket.UserID = util.GetUserId(c)
 	ticket.OrganizationID = uint(id)
 
-	slog.Debug("create tifket", "data", ticket)
+	slog.Debug("create ticket", "data", ticket)
 	err = db.Create(&ticket).Error
 	if err == gorm.ErrForeignKeyViolated {
 		slog.Debug("user not found", "data", err)
@@ -134,7 +134,7 @@ func SendTicket(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
 	}
 
-	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: ticket})
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: ticket})
 }
 
 // GetAllTickets godoc
@@ -211,7 +211,7 @@ func ReplyToTicket(c echo.Context) error {
 	}
 
 	var ticket model.Ticket
-	r := db.Preload("User").Select("user_id").First(&ticket, ticketId)
+	r := db.Preload("User").First(&ticket, ticketId)
 	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
 		slog.Debug("ticket not found with recieved id", "data", r.Error)
 		return c.JSON(http.StatusNotFound, util.Response{Alert: util.ALERT_NOT_FOUND})
@@ -220,6 +220,13 @@ func ReplyToTicket(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
 	}
 	slog.Debug("fetched ticket", "ticket", ticket)
+
+	ticket.Seen = true
+	if err = db.Save(&ticket).Error; err != nil {
+		slog.Debug("database error", "data", err)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+	slog.Debug("change ticket status to seen", "ticket", ticket)
 
 	to := ticket.User.Email
 
