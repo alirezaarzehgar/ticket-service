@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/alirezaarzehgar/ticketservice/api/handler"
 	"github.com/alirezaarzehgar/ticketservice/model"
+	"github.com/alirezaarzehgar/ticketservice/util"
 	"github.com/labstack/echo/v4"
 )
 
@@ -17,7 +19,7 @@ var (
 	MOCK_USER = map[string]any{
 		"username": "mockuser",
 		"password": "pass",
-		"email":    "mockuser@example.com2",
+		"email":    "mockuser@example.com",
 	}
 	// token payload: id: 1, email: "user@example.com", user: "user"
 	mockToken        = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ1c2VyQGV4YW1wbGUuY29tIiwic3ViIjoidXNlciIsImV4cCI6MTcwMzg2Mjk1NywianRpIjoiMSJ9.Jx_mEygZjnkTNif2VEgWsFxAn7soV8oKYih51ZZ7I-w"
@@ -126,4 +128,40 @@ func TestDeleteUser(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Errorf("status code: %d != %d", rec.Code, http.StatusOK)
 	}
+}
+
+func TestEditUser(t *testing.T) {
+	var user model.User
+	db.Select("id").Last(&user)
+
+	newName := "updated user"
+	MOCK_USER["username"] = newName
+	var res util.Response
+	body, _ := json.Marshal(MOCK_USER)
+	req := httptest.NewRequest(http.MethodPut, "/user/1", bytes.NewReader(body))
+	rec := httptest.NewRecorder()
+	req.Header.Set("Authorization", "Bearer "+ADMIN_TOKEN)
+
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(user.ID))
+
+	if handler.EditUser(c); rec.Code != http.StatusOK {
+		t.Errorf("error on udpate user: %v", rec.Code)
+	}
+	json.NewDecoder(rec.Body).Decode(&res)
+	slog.Debug("test case body", "data", res)
+
+	if res.Data == nil {
+		t.Errorf("Empty res.Data")
+		return
+	}
+	u := res.Data.(map[string]any)
+
+	if u["username"] != newName {
+		t.Errorf("Created admin haven't admin role: %v", u)
+		return
+	}
+
+	MOCK_USER = u
 }

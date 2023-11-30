@@ -19,6 +19,8 @@ var (
 		"password": "pass",
 		"email":    "mockadmin@example.com",
 	}
+
+	ADMIN_TOKEN = util.CreateUserToken(1, "admin@example.com", "admin", model.USERS_ROLE_SUPER_ADMIN)
 )
 
 func TestCreateAdmin(t *testing.T) {
