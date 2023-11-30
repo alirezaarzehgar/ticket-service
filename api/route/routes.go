@@ -23,6 +23,7 @@ type RouteConfig struct {
 	LogWriter io.Writer
 	DebugMode bool
 	JwtSecret []byte
+	AssetDir  string
 }
 
 func Init(c RouteConfig) *echo.Echo {
@@ -42,6 +43,8 @@ func Init(c RouteConfig) *echo.Echo {
 	e.POST("/login", handler.Login)
 
 	g := e.Group("", echojwt.WithConfig(echojwt.Config{SigningKey: c.JwtSecret}))
+	handler.DefaultAssetDir = c.AssetDir
+	g.Static("/", c.AssetDir)
 	g.GET("/user/:id", handler.GetUser, middleware.ForSuperAdmin)
 	g.GET("/user/profile", handler.GetUserProfile)
 	g.DELETE("/user/:id", handler.DeleteUser, middleware.ForSuperAdmin)
@@ -56,7 +59,8 @@ func Init(c RouteConfig) *echo.Echo {
 	g.POST("/organization/hire-admin/:org_id/:user_id", handler.AssignAdminToOrganization, middleware.ForSuperAdmin)
 	g.DELETE("/organization/:id", handler.DeleteOrganization, middleware.ForSuperAdmin)
 
-	g.POST("/ticket/new", handler.SendTicket, middleware.UserOnly)
+	g.POST("/ticket/assets", handler.UploadAsset, middleware.UserOnly)
+	g.POST("/ticket/:org_id", handler.SendTicket, middleware.UserOnly)
 	g.GET("/ticket/:org_id", handler.GetAllTickets)
 	g.POST("/ticket/:id/mail", handler.ReplyToTicket, middleware.ForAdmin)
 

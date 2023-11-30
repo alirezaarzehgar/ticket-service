@@ -48,6 +48,7 @@ func main() {
 		LogWriter: logd.DefaultWriter,
 		DebugMode: config.Debug(),
 		JwtSecret: config.JwtSecret(),
+		AssetDir:  config.Assets(),
 	}
 	slog.Debug("route config", "data", rc)
 

@@ -40,6 +40,7 @@ type Ticket struct {
 	OrganizationID uint   `gorm:"not null" json:"org_id"`
 	Title          string `gorm:"not null" json:"title"`
 	Body           string `gorm:"not null" json:"body"`
+	WebsiteURL     string `json:"website_url"`
 	AttachmentUrl  string `json:"attachment_url"`
 	Seen           bool   `gorm:"default:false" json:"seen"`
 	User           *User

@@ -13,7 +13,7 @@ dev: .env swag
 
 .env:
 	cp .env.example .env
-	mkdir logs assets
+	mkdir -p log assets
 
 stop:
 	yes | docker-compose rm

@@ -61,3 +61,11 @@ func Admin() model.User {
 		Role:     model.USERS_ROLE_SUPER_ADMIN,
 	}
 }
+
+func Assets() string {
+	dir := os.Getenv("ASSETS_DIRECTORY")
+	if _, err := os.Stat(dir); err != nil {
+		os.MkdirAll(dir, os.ModePerm)
+	}
+	return dir
+}
