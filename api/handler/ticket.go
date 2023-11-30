@@ -25,7 +25,7 @@ import (
 //
 //	@Router			/ticket/new [POST]
 func SendTicket(c echo.Context) error {
-	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[any]string{}})
+	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[string]any{}})
 }
 
 // GetAllTickets godoc
@@ -42,7 +42,7 @@ func SendTicket(c echo.Context) error {
 //
 //	@Router			/ticket/{org_id} [GET]
 func GetAllTickets(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	return c.JSON(http.StatusOK, map[string]any{})
 }
 
 // ReplyToTicket godoc
@@ -59,5 +59,5 @@ func GetAllTickets(c echo.Context) error {
 //
 //	@Router			/ticket/{id}/mail [POST]
 func ReplyToTicket(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	return c.JSON(http.StatusOK, map[string]any{})
 }

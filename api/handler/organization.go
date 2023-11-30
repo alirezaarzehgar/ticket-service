@@ -26,7 +26,7 @@ import (
 //
 //	@Router			/organization/new [POST]
 func CreateOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[any]string{}})
+	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[string]any{}})
 }
 
 // GetAllOrganizations godoc
@@ -41,7 +41,7 @@ func CreateOrganization(c echo.Context) error {
 //
 //	@Router			/organization/all [GET]
 func GetAllOrganizations(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	return c.JSON(http.StatusOK, map[string]any{})
 }
 
 // EditOrganization godoc
@@ -60,7 +60,7 @@ func GetAllOrganizations(c echo.Context) error {
 //
 //	@Router			/organization/{id} [PUT]
 func EditOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	return c.JSON(http.StatusOK, map[string]any{})
 }
 
 // AssignAdminToOrganization godoc
@@ -77,7 +77,7 @@ func EditOrganization(c echo.Context) error {
 //
 //	@Router			/organization/hire-admin/{org_id}/{user_id} [POST]
 func AssignAdminToOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	return c.JSON(http.StatusOK, map[string]any{})
 }
 
 // DeleteOrganization godoc
@@ -93,5 +93,5 @@ func AssignAdminToOrganization(c echo.Context) error {
 //
 //	@Router			/organization/{id} [DELETE]
 func DeleteOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	return c.JSON(http.StatusOK, map[string]any{})
 }
