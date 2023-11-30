@@ -67,7 +67,11 @@ func CreateOrganization(c echo.Context) error {
 //
 //	@Router			/organization/all [GET]
 func GetAllOrganizations(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	var orgs []model.Organize
+	db.Preload("Admins", func(db *gorm.DB) *gorm.DB {
+		return db.Omit("password")
+	}).Find(&orgs)
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: orgs})
 }
 
 // EditOrganization godoc
