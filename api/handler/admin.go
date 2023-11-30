@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 
 	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/alirezaarzehgar/ticketservice/util"
@@ -21,6 +23,8 @@ import (
 //	@Param			email		body		string	true	"Email"
 //	@Success		200			{object}	util.Response
 //	@Failure		400			{object}	util.Response
+//	@Failure		409			{object}	util.ResponseError"
+//	@Failure		500			{object}	util.ResponseError"
 //
 //	@Router			/admin/new [POST]
 func CreateAdmin(c echo.Context) error {
@@ -28,23 +32,20 @@ func CreateAdmin(c echo.Context) error {
 	if err := util.ParseBody(c, &admin, []string{"username", "password", "email"}, nil); err != nil {
 		return nil
 	}
-	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS})
-}
+	slog.Debug("recieved body", "data", admin)
 
-// DeleteAdmin godoc
-//
-//	@Summary		Delete an admin
-//	@Description	Super admin can delete a normal admin
-//	@Tags			admin
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		int	true	"User ID"
-//	@Success		200	{object}	util.Response
-//	@Failure		400	{object}	util.ResponseError
-//
-//	@Router			/admin/{id} [DELETE]
-func DeleteAdmin(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	admin.Password = util.CreateSHA256(admin.Password)
+	r := db.Create(&admin)
+	if r.Error == gorm.ErrDuplicatedKey {
+		slog.Debug("conflict on database", "data", r.Error)
+		return c.JSON(http.StatusConflict, util.Response{Alert: util.ALERT_USER_CONFLICT})
+	} else if r.Error != nil {
+		slog.Debug("db error on create admin", "data", r.Error)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+	slog.Debug("user created", "data", admin)
+
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: admin})
 }
 
 // EditAdmin godoc
