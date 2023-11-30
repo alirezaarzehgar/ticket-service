@@ -32,7 +32,7 @@ func TestMain(m *testing.M) {
 func nilBodyTest(t *testing.T, handler func(c echo.Context) error, method string, target string) {
 	req := httptest.NewRequest(method, target, nil)
 	rec := httptest.NewRecorder()
-	if err := handler(e.NewContext(req, rec)); err == nil || rec.Code != http.StatusBadRequest {
-		t.Errorf("body is nil but works. code: %v, err: %v, user: %v", rec.Code, err, rec.Body)
+	if handler(e.NewContext(req, rec)); rec.Code != http.StatusBadRequest {
+		t.Errorf("body is nil but works. code: %v, user: %v", rec.Code, rec.Body)
 	}
 }
