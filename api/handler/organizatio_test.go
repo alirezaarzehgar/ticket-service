@@ -85,6 +85,8 @@ func TestEditOrganization(t *testing.T) {
 	if res.Data.Name != newName {
 		t.Errorf("name doesn't changed: %v", org)
 	}
+
+	MOCK_ORG["id"] = res.Data.ID
 }
 
 func TestAssignAdminToOrganization(t *testing.T) {
@@ -92,5 +94,21 @@ func TestAssignAdminToOrganization(t *testing.T) {
 }
 
 func TestDeleteOrganization(t *testing.T) {
+	req := httptest.NewRequest(http.MethodDelete, "/organization/1", nil)
+	rec := httptest.NewRecorder()
+	req.Header.Set("Authorization", "Bearer "+ADMIN_TOKEN)
 
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(MOCK_ORG["id"]))
+
+	if handler.DeleteOrganization(c); rec.Code != http.StatusOK {
+		t.Errorf("error on delete org: %v", rec.Code)
+	}
+
+	var org *model.Organization
+	db.First(org, MOCK_ORG["id"])
+	if org != nil {
+		t.Errorf("this test removed org but it's already exists: %v", org)
+	}
 }
