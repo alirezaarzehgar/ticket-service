@@ -1,6 +1,7 @@
 # Ticketing Service
 This is a pilot project for Arttizens company. I tried to write clean and standard code
 and use some cool tools to make my codebase more professional.
+See [here](https://alirezaarzehgar.github.io/ticketservice/) for swagger documentions.
 
 # Tools
 - Docker Compose
@@ -42,12 +43,15 @@ test-compile                   Compile project
 test                           Run tests and return status code of unit tests
 test-dev                       Run database on container and tests on local machine
 swag                           Install swagger and format/init comments
+deploy-swagger                 Deploy swagger and create static site on github pages
 ```
 
 ## Swagger documentions
 After running project you can access to documentions using following path:
 
 localhost:8000/swagger/index.html
+
+Running `make deploy-swagger` will create a github pages and create static site from your swagger doc then push it on your github account.
 
 ## Contributing
 We welcome and appreciate all contributions, no matter how small!
