@@ -23,6 +23,6 @@ func Init(c *DbConf, writer logger.Writer) (db *gorm.DB, err error) {
 
 	slog.Debug("database dsn", "data", dsn)
 
-	newLogger := logger.New(writer, logger.Config{LogLevel: logger.Warn})
+	newLogger := logger.New(writer, logger.Config{LogLevel: logger.Info})
 	return gorm.Open(mysql.Open(dsn), &gorm.Config{TranslateError: true, Logger: newLogger})
 }
