@@ -187,3 +187,70 @@ func DeleteUser(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: u})
 }
+
+// EditUser godoc
+//
+//	@Summary		Edit uer
+//	@Description	Super admin can edit every normal admin.
+//	@Description	User and admin can edit hisself. But cannot change his role.
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			id			path		int		true	"User ID"
+//	@Param			username	body		string	false	"Username"
+//	@Param			password	body		string	false	"Password"
+//	@Param			email		body		string	false	"Email"
+//	@Param			role		body		string	false	"User role (super_admin|admin|user)"
+//	@Success		200			{object}	util.Response
+//	@Failure		400			{object}	util.ResponseError
+//	@Failure		409			{object}	util.ResponseError"
+//	@Failure		500			{object}	util.ResponseError"
+//
+//	@Router			/admin/{id} [PUT]
+func EditUser(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	mustIgnore := []string{"role"}
+	safesa := db.Where("role <> ?", model.USERS_ROLE_SUPER_ADMIN)
+	role := util.GetUserRole(c)
+
+	if role == model.USERS_ROLE_USER || role == model.USERS_ROLE_ADMIN {
+		id = int(util.GetUserId(c))
+	}
+
+	if role == model.USERS_ROLE_SUPER_ADMIN {
+		if util.GetUserId(c) != uint(id) {
+			mustIgnore = nil
+		} else {
+			safesa = db.Where("1 = 1")
+		}
+	}
+
+	var user model.User
+	if err := util.ParseBody(c, &user, nil, mustIgnore); err != nil {
+		return nil
+	}
+	slog.Debug("recieved body", "data", user)
+
+	if user.Password != "" {
+		user.Password = util.CreateSHA256(user.Password)
+	}
+
+	r := db.Where(safesa).Where(id).Updates(&user)
+	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
+		slog.Debug("user not found with recieved id", "data", r.Error)
+		return c.JSON(http.StatusNotFound, util.Response{Alert: util.ALERT_NOT_FOUND})
+	} else if err != nil {
+		slog.Debug("database error", "data", err)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+	slog.Debug("a user was updated with admin role", "data", user)
+
+	db.First(&user, id)
+	user.Password = ""
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: user})
+}
