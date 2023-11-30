@@ -104,7 +104,6 @@ func TestAssignAdminToOrganization(t *testing.T) {
 	c.SetParamNames("org_id", "user_id")
 	c.SetParamValues(fmt.Sprint(org.ID), fmt.Sprint(user.ID))
 
-	fmt.Println(org.ID, user.ID)
 	if handler.AssignAdminToOrganization(c); rec.Code != http.StatusOK {
 		t.Errorf("error on hireing an admin: %v", rec.Code)
 	}
