@@ -87,6 +87,9 @@ func GetAllOrganizations(c echo.Context) error {
 //	@Param			website_url		body		string	false	"Website URL"
 //	@Success		200				{object}	util.Response
 //	@Failure		400				{object}	util.ResponseError
+//	@Failure		401				{object}	util.ResponseError
+//	@Failure		404				{object}	util.ResponseError
+//	@Failure		500				{object}	util.ResponseError
 //
 //	@Router			/organization/{id} [PUT]
 func EditOrganization(c echo.Context) error {
@@ -140,10 +143,31 @@ func EditOrganization(c echo.Context) error {
 //	@Param			user_id	path		string	true	"User ID"
 //	@Success		200		{object}	util.Response
 //	@Failure		400		{object}	util.ResponseError
+//	@Failure		500		{object}	util.ResponseError
 //
 //	@Router			/organization/hire-admin/{org_id}/{user_id} [POST]
 func AssignAdminToOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	orgId, err := strconv.Atoi(c.Param("org_id"))
+	if err != nil || orgId <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	userId, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil || userId <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	r := db.Create(model.OrgAdmin{OrganizationID: uint(orgId), UserID: uint(userId)})
+	if r.Error == gorm.ErrForeignKeyViolated {
+		slog.Debug("invalid user_id or org_id", "data", map[string]int{"org_id": orgId, "user_id": userId})
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_ASSIGN_ADMIN_TO_ORG})
+	} else if r.Error != nil {
+		slog.Debug("database error", "data", err)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS})
 }
 
 // DeleteOrganization godoc
@@ -156,6 +180,8 @@ func AssignAdminToOrganization(c echo.Context) error {
 //	@Param			id	path		string	true	"Organization ID"
 //	@Success		200	{object}	util.Response
 //	@Failure		400	{object}	util.ResponseError
+//	@Failure		404	{object}	util.ResponseError
+//	@Failure		500	{object}	util.ResponseError
 //
 //	@Router			/organization/{id} [DELETE]
 func DeleteOrganization(c echo.Context) error {

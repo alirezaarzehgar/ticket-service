@@ -21,6 +21,7 @@ const (
 	ALERT_SUPER_ADMIN_ONLY      = "You should be super admin to access this page"
 	ALERT_ADMIN_ONLY            = "You should be admin or super admin to access this page"
 	ALERT_INTERNAL              = "Internal server error"
+	ALERT_ASSIGN_ADMIN_TO_ORG   = "Invalid user or organization data"
 )
 
 // Response model
