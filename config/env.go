@@ -69,3 +69,23 @@ func Assets() string {
 	}
 	return dir
 }
+
+type SmtpConf struct {
+	FromAddress string
+	FromName    string
+	Password    string
+	Host        string
+	Port        string
+	Server      string
+}
+
+func GetMailConfig() SmtpConf {
+	return SmtpConf{
+		FromAddress: os.Getenv("MAIL_FROM_ADDRESS"),
+		FromName:    os.Getenv("MAIL_FROM_NAME"),
+		Password:    os.Getenv("MAIL_PASSWORD"),
+		Host:        os.Getenv("MAIL_HOST"),
+		Port:        os.Getenv("MAIL_PORT"),
+		Server:      os.Getenv("MAIL_SERVER"),
+	}
+}

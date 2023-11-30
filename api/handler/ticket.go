@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"net/smtp"
 	"os"
 	"strconv"
 
@@ -190,11 +191,50 @@ func GetAllTickets(c echo.Context) error {
 //	@Tags			organization
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int	true	"User ID"
-//	@Success		200	{object}	util.Response
-//	@Failure		400	{object}	util.ResponseError
+//	@Param			id		path		int	true	"Ticket ID"
+//	@Param			subject	body		int	true	"Email subject"
+//	@Param			body	body		int	true	"Email body"
+//	@Success		200		{object}	util.Response
+//	@Failure		400		{object}	util.ResponseError
 //
 //	@Router			/ticket/{id}/mail [POST]
 func ReplyToTicket(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	ticketId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || ticketId <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	var sc util.SmtpContent
+	if err := util.ParseBody(c, &sc, []string{"subject", "body"}, nil); err != nil {
+		return nil
+	}
+
+	var ticket model.Ticket
+	r := db.Preload("User").Select("user_id").First(&ticket, ticketId)
+	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
+		slog.Debug("ticket not found with recieved id", "data", r.Error)
+		return c.JSON(http.StatusNotFound, util.Response{Alert: util.ALERT_NOT_FOUND})
+	} else if err != nil {
+		slog.Debug("database error", "data", err)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+	slog.Debug("fetched ticket", "ticket", ticket)
+
+	to := ticket.User.Email
+
+	go func() {
+		conf := util.SmtpConf
+		msg := fmt.Sprintf("From: %s\r\n"+
+			"To: %s\r\n"+
+			"Subject: %s\r\n"+sc.Body,
+			conf.FromAddress, to, sc.Subject,
+		)
+		err = smtp.SendMail(conf.Server, util.SmtpAuth, conf.FromAddress, []string{to}, []byte(msg))
+		if err != nil {
+			slog.Info("the system could not send your email", "email", msg, "err", err)
+		}
+	}()
+
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS})
 }

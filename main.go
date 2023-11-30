@@ -12,6 +12,7 @@ import (
 	"github.com/alirezaarzehgar/ticketservice/config"
 	"github.com/alirezaarzehgar/ticketservice/database"
 	"github.com/alirezaarzehgar/ticketservice/logd"
+	"github.com/alirezaarzehgar/ticketservice/util"
 )
 
 //	@version	2.0
@@ -43,6 +44,7 @@ func main() {
 	}
 
 	handler.SetDB(db)
+	util.InitMail(config.GetMailConfig())
 
 	rc := route.RouteConfig{
 		LogWriter: logd.DefaultWriter,
