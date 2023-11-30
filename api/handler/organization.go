@@ -119,5 +119,26 @@ func AssignAdminToOrganization(c echo.Context) error {
 //
 //	@Router			/organization/{id} [DELETE]
 func DeleteOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	var org model.Organize
+	r := db.Delete(&org, id)
+	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
+		slog.Debug("organization not found with recieved id", "data", r.Error)
+		return c.JSON(http.StatusNotFound, util.Response{Alert: util.ALERT_NOT_FOUND})
+	} else if err != nil {
+		slog.Debug("database error", "data", err)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+
+	db.Unscoped().First(&org, id)
+	slog.Debug("organization to edit", "data", org)
+	org.Name = fmt.Sprintf("%s-%s", util.CreateSHA256(fmt.Sprint(id)), org.Name)
+	db.Unscoped().Save(&org)
+
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: org})
 }
