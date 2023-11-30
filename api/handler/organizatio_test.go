@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -57,7 +58,33 @@ func TestGetAllOrganizations(t *testing.T) {
 }
 
 func TestEditOrganization(t *testing.T) {
+	var org model.Organization
+	db.Select("id").Last(&org)
 
+	newName := "updated name"
+	MOCK_ORG["name"] = newName
+	body, _ := json.Marshal(MOCK_ORG)
+	req := httptest.NewRequest(http.MethodPut, "/organization/1", bytes.NewReader(body))
+	rec := httptest.NewRecorder()
+	req.Header.Set("Authorization", "Bearer "+ADMIN_TOKEN)
+
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(org.ID))
+
+	if handler.EditOrganization(c); rec.Code != http.StatusOK {
+		t.Errorf("error on udpate org: %v", rec.Code)
+	}
+
+	res := struct {
+		Status bool
+		Alert  string
+		Data   model.Organization
+	}{}
+	json.NewDecoder(rec.Body).Decode(&res)
+	if res.Data.Name != newName {
+		t.Errorf("name doesn't changed: %v", org)
+	}
 }
 
 func TestAssignAdminToOrganization(t *testing.T) {

@@ -156,7 +156,7 @@ func TestEditUser(t *testing.T) {
 	u := res.Data.(map[string]any)
 
 	if u["username"] != newName {
-		t.Errorf("Created admin haven't admin role: %v", u)
+		t.Errorf("name doesn't changed: %v", u)
 		return
 	}
 
