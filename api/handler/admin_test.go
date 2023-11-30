@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -35,23 +36,39 @@ func TestCreateAdmin(t *testing.T) {
 	slog.Debug("test case body", "data", res)
 
 	if res.Data == nil {
-		t.Errorf("Empty res.Data")
-		return
+		t.Fatalf("Empty res.Data")
 	}
 	u := res.Data.(map[string]any)
 
 	if u["role"] != model.USERS_ROLE_ADMIN {
-		t.Errorf("Created admin haven't admin role: %v", u)
-		return
+		t.Fatalf("Created admin haven't admin role: %v", u)
 	}
 
-	MOCK_ADMIN = u
-}
-
-func TestEditAdmin(t *testing.T) {
-
+	MOCK_ADMIN["id"] = u["ID"]
+	MOCK_ADMIN["role"] = u["role"]
 }
 
 func TestPromoteAdmin(t *testing.T) {
+	body, _ := json.Marshal(MOCK_USER)
+	req := httptest.NewRequest(http.MethodPut, "/user/1", bytes.NewReader(body))
+	rec := httptest.NewRecorder()
+	req.Header.Set("Authorization", "Bearer "+ADMIN_TOKEN)
 
+	adminId := fmt.Sprint(MOCK_ADMIN["id"])
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(adminId)
+
+	if handler.PromoteAdmin(c); rec.Code != http.StatusOK {
+		t.Errorf("error on udpate user: %v", rec.Code)
+	}
+
+	var u model.User
+	db.First(&u, adminId)
+
+	if u.Role != model.USERS_ROLE_SUPER_ADMIN {
+		t.Fatalf("Admin doesn't promote: %v", u)
+	}
+
+	MOCK_ADMIN["role"] = model.USERS_ROLE_SUPER_ADMIN
 }

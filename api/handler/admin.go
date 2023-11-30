@@ -3,6 +3,7 @@ package handler
 import (
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -65,5 +66,23 @@ func CreateAdmin(c echo.Context) error {
 //
 //	@Router			/admin/promote/{id} [POST]
 func PromoteAdmin(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[any]string{})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+	// check id
+	// update role to super user
+	r := db.Model(&model.User{}).
+		Where("role = ?", model.USERS_ROLE_ADMIN).
+		Where(id).Update("role", model.USERS_ROLE_SUPER_ADMIN)
+	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
+		slog.Debug("user not found with recieved id", "data", r.Error)
+		return c.JSON(http.StatusNotFound, util.Response{Alert: util.ALERT_NOT_FOUND})
+	} else if err != nil {
+		slog.Debug("database error", "data", err)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS})
 }
