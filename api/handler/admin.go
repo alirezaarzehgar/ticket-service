@@ -35,6 +35,10 @@ func CreateAdmin(c echo.Context) error {
 	slog.Debug("recieved body", "data", admin)
 
 	admin.Password = util.CreateSHA256(admin.Password)
+	if admin.Role == "" || admin.Role == model.USERS_ROLE_USER {
+		admin.Role = model.USERS_ROLE_ADMIN
+	}
+
 	r := db.Create(&admin)
 	if r.Error == gorm.ErrDuplicatedKey {
 		slog.Debug("conflict on database", "data", r.Error)

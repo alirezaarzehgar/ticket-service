@@ -30,6 +30,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 
 	db.Unscoped().Delete(&model.User{}, "username", MOCK_USER["username"])
+	db.Unscoped().Delete(&model.User{}, "username", MOCK_ADMIN["username"])
 }
 
 func nilBodyTest(t *testing.T, handler func(c echo.Context) error, method string, target string) {
