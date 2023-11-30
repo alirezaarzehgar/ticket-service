@@ -90,18 +90,54 @@ func Login(c echo.Context) error {
 // GetUserProfile godoc
 //
 //	@Summary		Get user profile
-//	@Description	Fetch a user by ID
+//	@Description	Fetch information of loggedin user
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	util.Response
 //	@Failure		400	{object}	util.ResponseError
+//	@Failure		409	{object}	util.ResponseError"
+//	@Failure		500	{object}	util.ResponseError"
 //
 //	@Router			/user/profile [GET]
 func GetUserProfile(c echo.Context) error {
 	var user model.User
 	if err := db.First(&user, util.GetUserId(c)).Error; err != nil {
 		slog.Debug("invalid id", "data", c.Param("id"))
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+
+	user.Password = ""
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: user})
+}
+
+// GetUser godoc
+//
+//	@Summary		Fetch user by ID
+//	@Description	Fetch user by ID
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	util.Response
+//	@Failure		409	{object}	util.ResponseError"
+//	@Failure		500	{object}	util.ResponseError"
+//	@Failure		400	{object}	util.ResponseError
+//
+//	@Router			/user/{id} [GET]
+func GetUser(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	var user model.User
+	r := db.First(&user, id)
+	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
+		slog.Debug("user not found with recieved id", "data", r.Error)
+		return c.JSON(http.StatusNotFound, util.Response{Alert: util.ALERT_NOT_FOUND})
+	} else if err != nil {
+		slog.Debug("database error", "data", err)
 		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
 	}
 
@@ -121,6 +157,8 @@ func GetUserProfile(c echo.Context) error {
 //	@Param			id	path		int	true	"User ID"
 //	@Success		200	{object}	util.Response
 //	@Failure		400	{object}	util.ResponseError
+//	@Failure		409	{object}	util.ResponseError"
+//	@Failure		500	{object}	util.ResponseError"
 //
 //	@Router			/user/{id} [DELETE]
 func DeleteUser(c echo.Context) error {

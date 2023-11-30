@@ -87,6 +87,21 @@ func TestGetUserProfile(t *testing.T) {
 	}
 }
 
+func TestGetUser(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/user/1", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+
+	if err := handler.GetUser(c); err != nil {
+		t.Errorf("error: %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("status code: %d != %d", rec.Code, http.StatusOK)
+	}
+}
+
 func TestDeleteUser(t *testing.T) {
 	var u model.User
 	db.Select("id").Last(&u)
