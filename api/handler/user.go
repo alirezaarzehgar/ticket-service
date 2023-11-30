@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/labstack/echo/v4"
@@ -33,10 +35,6 @@ func Register(c echo.Context) error {
 		return nil
 	}
 	slog.Debug("recieved body", "data", user)
-
-	if user.Email == "" || user.Password == "" {
-		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
-	}
 
 	user.Password = util.CreateSHA256(user.Password)
 	r := db.Create(&user)
@@ -109,4 +107,45 @@ func GetUserProfile(c echo.Context) error {
 
 	user.Password = ""
 	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: user})
+}
+
+// DeleteUser godoc
+//
+//	@Summary		Delete a user or admin
+//	@Description	Super admin can delete users and admins.
+//	@Description	Super admin can'n remove super admins/
+//	@Description	Admins can't remove another admins or users.
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"User ID"
+//	@Success		200	{object}	util.Response
+//	@Failure		400	{object}	util.ResponseError
+//
+//	@Router			/user/{id} [DELETE]
+func DeleteUser(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	var u model.User
+	r := db.Delete(&u, id)
+	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
+		slog.Debug("user not found with recieved id", "data", r.Error)
+		return c.JSON(http.StatusNotFound, util.Response{Alert: util.ALERT_NOT_FOUND})
+	} else if err != nil {
+		slog.Debug("database error", "data", err)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+
+	db.Unscoped().First(&u, id)
+	slog.Debug("user to edit", "data", u)
+	uniquePrefix := util.CreateSHA256(fmt.Sprint(id))
+	u.Username = fmt.Sprintf("%s-%s", uniquePrefix, u.Username)
+	u.Email = fmt.Sprintf("%s-%s", uniquePrefix, u.Username)
+	db.Unscoped().Save(&u)
+
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: u})
 }

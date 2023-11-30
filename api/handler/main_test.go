@@ -13,7 +13,10 @@ import (
 	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
+
+var db *gorm.DB
 
 func TestMain(m *testing.M) {
 	godotenv.Load("../../.env")
@@ -21,7 +24,7 @@ func TestMain(m *testing.M) {
 	logd.InitLogger()
 
 	dbConf, _ := config.GetDb()
-	db, _ := database.Init(dbConf, log.New(logd.DefaultWriter, "", logd.DefaultLogFlags))
+	db, _ = database.Init(dbConf, log.New(logd.DefaultWriter, "", logd.DefaultLogFlags))
 	database.Migrate(db, config.Admin())
 	handler.SetDB(db)
 	m.Run()

@@ -13,7 +13,7 @@ func ForSuperAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 		if util.GetUserRole(c) == model.USERS_ROLE_SUPER_ADMIN {
 			return next(c)
 		}
-		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_USER_ONLY})
+		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_SUPER_ADMIN_ONLY})
 	})
 }
 
@@ -23,6 +23,6 @@ func ForAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 		if role == model.USERS_ROLE_ADMIN || role == model.USERS_ROLE_SUPER_ADMIN {
 			return next(c)
 		}
-		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_USER_ONLY})
+		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_ADMIN_ONLY})
 	})
 }

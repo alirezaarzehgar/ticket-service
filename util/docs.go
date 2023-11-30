@@ -15,8 +15,9 @@ const (
 	ALERT_BAD_FILE           = "Invalid file format"
 	ALERT_STORY_WRONG        = "Wrong story field"
 	ALERT_DUP_ESTORY         = "You can't create more that one explore story"
-	ALERT_GUEST_ONLY         = "You should be guest to access this page"
 	ALERT_USER_ONLY          = "You should be user to access this page"
+	ALERT_SUPER_ADMIN_ONLY   = "You should be super admin to access this page"
+	ALERT_ADMIN_ONLY         = "You should be admin or super admin to access this page"
 	ALERT_INTERNAL           = "Internal server error"
 )
 

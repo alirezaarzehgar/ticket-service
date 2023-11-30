@@ -3,11 +3,13 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/alirezaarzehgar/ticketservice/api/handler"
+	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/labstack/echo/v4"
 )
 
@@ -82,5 +84,31 @@ func TestGetUserProfile(t *testing.T) {
 	json.NewDecoder(rec.Body).Decode(&res)
 	if res.ID == mockTokenID {
 		t.Errorf("invalid id: %v", res.ID)
+	}
+}
+
+func TestDeleteUser(t *testing.T) {
+	var u model.User
+	db.Select("id").Last(&u)
+
+	req := httptest.NewRequest(http.MethodDelete, "/user/1", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(u.ID))
+
+	if err := handler.DeleteUser(c); err != nil {
+		t.Errorf("error: %v", err)
+	}
+
+	body, _ := json.Marshal(MOCK_USER)
+	req = httptest.NewRequest(http.MethodPost, "/register", bytes.NewReader(body))
+	rec = httptest.NewRecorder()
+
+	if err := handler.Register(e.NewContext(req, rec)); err != nil {
+		t.Errorf("error: %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("status code: %d != %d", rec.Code, http.StatusOK)
 	}
 }
