@@ -14,7 +14,7 @@ func Migrate(db *gorm.DB, defaultAdmin model.User) error {
 		return nil
 	}
 
-	err := db.AutoMigrate(&model.User{}, &model.Organize{}, &model.Ticket{})
+	err := db.AutoMigrate(&model.User{}, &model.Organization{}, &model.Ticket{})
 	if err != nil {
 		return err
 	}

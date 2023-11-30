@@ -16,7 +16,7 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id			body		uint	true	"User ID"
-//	@Param			org_id			body		uint	true	"Organize ID"
+//	@Param			org_id			body		uint	true	"Organization ID"
 //	@Param			title			body		string	true	"Title"
 //	@Param			body			body		string	true	"Body"
 //	@Param			attachment_url	body		string	true	"Attachment Url"

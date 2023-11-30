@@ -71,8 +71,7 @@ func PromoteAdmin(c echo.Context) error {
 		slog.Debug("invalid id parameter", "data", err)
 		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
 	}
-	// check id
-	// update role to super user
+
 	r := db.Model(&model.User{}).
 		Where("role = ?", model.USERS_ROLE_ADMIN).
 		Where(id).Update("role", model.USERS_ROLE_SUPER_ADMIN)

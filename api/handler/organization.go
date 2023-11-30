@@ -33,7 +33,7 @@ import (
 //
 //	@Router			/organization/new [POST]
 func CreateOrganization(c echo.Context) error {
-	var org model.Organize
+	var org model.Organization
 	if err := util.ParseBody(c, &org, []string{"name", "address", "phone_number"}, nil); err != nil {
 		return nil
 	}
@@ -67,7 +67,7 @@ func CreateOrganization(c echo.Context) error {
 //
 //	@Router			/organization/all [GET]
 func GetAllOrganizations(c echo.Context) error {
-	var orgs []model.Organize
+	var orgs []model.Organization
 	db.Preload("Admins", func(db *gorm.DB) *gorm.DB {
 		return db.Omit("password")
 	}).Find(&orgs)
@@ -90,7 +90,43 @@ func GetAllOrganizations(c echo.Context) error {
 //
 //	@Router			/organization/{id} [PUT]
 func EditOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		slog.Debug("invalid id parameter", "data", err)
+		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
+	}
+
+	var permitted int64
+	oa := model.OrgAdmin{OrganizationID: uint(id), UserID: util.GetUserId(c)}
+	slog.Debug("search options for OrgAdmin", "data", oa)
+
+	db.Where(oa).First(&oa).Count(&permitted)
+	if permitted <= 0 {
+		slog.Debug("admin is not member of organization")
+		return c.JSON(http.StatusUnauthorized, util.Response{Status: false, Alert: util.ALERT_ORG_EDIT_UNAUTHORIZED})
+	}
+	slog.Debug("admin is member of organization", "permitted", permitted, "data", oa)
+
+	var org model.Organization
+	if err := util.ParseBody(c, &org, nil, nil); err != nil {
+		return nil
+	}
+
+	org.ID = uint(id)
+	slog.Debug("organization to update", "data", org)
+	r := db.Updates(&org)
+	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
+		slog.Debug("organization not found with recieved id", "data", r.Error)
+		return c.JSON(http.StatusNotFound, util.Response{Alert: util.ALERT_NOT_FOUND})
+	} else if err != nil {
+		slog.Debug("database error", "data", err)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+
+	db.Preload("Admins", func(db *gorm.DB) *gorm.DB {
+		return db.Omit("password")
+	}).First(&org, id)
+	return c.JSON(http.StatusOK, util.Response{Status: true, Alert: util.ALERT_SUCCESS, Data: org})
 }
 
 // AssignAdminToOrganization godoc
@@ -129,7 +165,7 @@ func DeleteOrganization(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, util.Response{Alert: util.ALERT_BAD_REQUEST})
 	}
 
-	var org model.Organize
+	var org model.Organization
 	r := db.Delete(&org, id)
 	if r.Error == gorm.ErrRecordNotFound || r.RowsAffected == 0 {
 		slog.Debug("organization not found with recieved id", "data", r.Error)
