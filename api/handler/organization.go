@@ -38,7 +38,7 @@ func CreateOrganization(c echo.Context) error {
 		return nil
 	}
 
-	org.Admins = append(org.Admins, model.User{Model: gorm.Model{ID: util.GetUserId(c)}})
+	org.Admins = []model.User{{Model: gorm.Model{ID: util.GetUserId(c)}}}
 	r := db.Create(&org)
 	if r.Error == gorm.ErrDuplicatedKey {
 		slog.Debug("conflict on database", "data", r.Error)

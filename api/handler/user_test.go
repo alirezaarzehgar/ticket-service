@@ -12,7 +12,6 @@ import (
 	"github.com/alirezaarzehgar/ticketservice/api/handler"
 	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/alirezaarzehgar/ticketservice/util"
-	"github.com/labstack/echo/v4"
 )
 
 var (
@@ -25,8 +24,6 @@ var (
 	mockToken        = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ1c2VyQGV4YW1wbGUuY29tIiwic3ViIjoidXNlciIsImV4cCI6MTcwMzg2Mjk1NywianRpIjoiMSJ9.Jx_mEygZjnkTNif2VEgWsFxAn7soV8oKYih51ZZ7I-w"
 	mockTokenID uint = 1
 )
-
-var e = echo.New()
 
 func TestRegister(t *testing.T) {
 	body, _ := json.Marshal(MOCK_USER)

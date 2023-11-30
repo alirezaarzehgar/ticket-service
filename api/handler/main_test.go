@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +17,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var (
+	db *gorm.DB
+	e  = echo.New()
+)
 
 func TestMain(m *testing.M) {
 	godotenv.Load("../../.env")
@@ -31,6 +35,12 @@ func TestMain(m *testing.M) {
 
 	db.Unscoped().Delete(&model.User{}, "username", MOCK_USER["username"])
 	db.Unscoped().Delete(&model.User{}, "username", MOCK_ADMIN["username"])
+
+	var org model.Organization
+	db.First(&org, "name", MOCK_ORG["name"])
+	slog.Debug("remove mockorg", "data", org)
+	db.Model(&org).Association("Admins").Clear()
+	db.Unscoped().Delete(&model.Organization{}, "name", MOCK_ORG["name"])
 }
 
 func nilBodyTest(t *testing.T, handler func(c echo.Context) error, method string, target string) {
