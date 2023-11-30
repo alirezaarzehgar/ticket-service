@@ -1,10 +1,15 @@
 package handler
 
 import (
+	"fmt"
+	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 
+	"github.com/alirezaarzehgar/ticketservice/model"
 	"github.com/alirezaarzehgar/ticketservice/util"
 )
 
@@ -23,10 +28,31 @@ import (
 //
 //	@Success		200				{object}	util.Response
 //	@Failure		400				{object}	util.ResponseError
+//	@Failure		409				{object}	util.ResponseError"
+//	@Failure		500				{object}	util.ResponseError"
 //
 //	@Router			/organization/new [POST]
 func CreateOrganization(c echo.Context) error {
-	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: map[string]any{}})
+	var org model.Organize
+	if err := util.ParseBody(c, &org, []string{"name", "address", "phone_number"}, nil); err != nil {
+		return nil
+	}
+
+	org.Admins = append(org.Admins, model.User{Model: gorm.Model{ID: util.GetUserId(c)}})
+	r := db.Create(&org)
+	if r.Error == gorm.ErrDuplicatedKey {
+		slog.Debug("conflict on database", "data", r.Error)
+		return c.JSON(http.StatusConflict, util.Response{Alert: util.ALERT_ORG_CONFLICT})
+	} else if r.Error != nil {
+		slog.Debug("db error on create org", "data", r.Error)
+		return c.JSON(http.StatusInternalServerError, util.Response{Alert: util.ALERT_INTERNAL})
+	}
+	slog.Debug("org created", "data", org)
+
+	db.Preload("Admins", func(db *gorm.DB) *gorm.DB {
+		return db.Omit("password")
+	}).First(&org)
+	return c.JSON(http.StatusOK, util.Response{Status: false, Alert: util.ALERT_SUCCESS, Data: org})
 }
 
 // GetAllOrganizations godoc

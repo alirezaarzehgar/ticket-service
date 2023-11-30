@@ -5,6 +5,7 @@ const (
 	ALERT_NOT_FOUND          = "Not found"
 	ALERT_TOKEN_NOT_FOUND    = "Your JWT token not found"
 	ALERT_USER_CONFLICT      = "Someone registered with this email"
+	ALERT_ORG_CONFLICT       = "Organization already created with this name"
 	ALERT_CONFLICT           = "Conflict"
 	ALERT_INVALID_EMAIL      = "Invalid email address"
 	ALERT_INSECURE_PASSWORD  = "Insecure password"

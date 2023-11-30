@@ -25,7 +25,7 @@ type Organize struct {
 	gorm.Model
 	Name        string `gorm:"not null; unique" json:"name"`
 	Address     string `gorm:"not null" json:"address"`
-	PhoneNumber string `gorm:"not null; unique" json:"phone_number"`
+	PhoneNumber string `gorm:"not null" json:"phone_number"`
 	WebsiteUrl  string `json:"website_url"`
 	Admins      []User `gorm:"many2many:org_admin"`
 	Tickets     []Ticket
