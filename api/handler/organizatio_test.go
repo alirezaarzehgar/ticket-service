@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/alirezaarzehgar/ticketservice/api/handler"
+	"github.com/alirezaarzehgar/ticketservice/model"
 )
 
 var (
@@ -35,7 +36,24 @@ func TestCreateOrganization(t *testing.T) {
 }
 
 func TestGetAllOrganizations(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/organization/new", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
 
+	if handler.GetAllOrganizations(c); rec.Code != http.StatusOK {
+		t.Errorf("error on fetching orgs")
+	}
+
+	res := struct {
+		Status bool
+		Alert  string
+		Data   []model.Organization
+	}{}
+	json.NewDecoder(rec.Body).Decode(&res)
+	if len(res.Data) <= 1 {
+		slog.Debug("decoded response", "data", res)
+		t.Errorf("lest one org registred on db. org len: %v", len(res.Data))
+	}
 }
 
 func TestEditOrganization(t *testing.T) {
